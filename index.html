@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Générateur Word</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Convertir un texte en Word</h1>
+
+
+        <!-- ============================= -->
+        <!-- CHOIX DU DÉPUTÉ -->
+        <!-- ============================= -->
+
+        <label for="depute_id">
+            اختر النائب / النائبة:
+        </label>
+
+        <select id="depute_id">
+
+            <option value="">
+                -- اختر النائب / النائبة --
+            </option>
+
+        </select>
+
+
+        <!-- ============================= -->
+        <!-- CHOIX DU MINISTRE -->
+        <!-- ============================= -->
+
+        <label for="ministre_id">
+            اختر الوزير / الوزيرة:
+        </label>
+
+        <select id="ministre_id">
+
+            <option value="">
+                -- اختر الوزير / الوزيرة --
+            </option>
+
+        </select>
+
+
+        <!-- ============================= -->
+        <!-- SUJET -->
+        <!-- ============================= -->
+
+        <label for="subject">
+            موضوع السؤال:
+        </label>
+
+        <input
+            type="text"
+            id="subject"
+            placeholder="اكتب موضوع السؤال هنا..."
+        >
+
+
+        <!-- ============================= -->
+        <!-- TEXTE -->
+        <!-- ============================= -->
+
+        <label for="text">
+            نص السؤال:
+        </label>
+
+        <textarea
+            id="text"
+            placeholder="اكتب نص السؤال هنا..."
+        ></textarea>
+
+
+        <!-- ============================= -->
+        <!-- BOUTON -->
+        <!-- ============================= -->
+
+        <button
+            type="button"
+            id="generateWord"
+        >
+            📄 Générer le fichier Word
+        </button>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- SCRIPT PRINCIPAL -->
+    <!-- ============================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
