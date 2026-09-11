@@ -58,14 +58,26 @@ async function chargerImage(chemin) {
         chemin
     );
 
+    // Construire une URL absolue
+    const imageUrl =
+        new URL(
+            chemin,
+            document.baseURI
+        ).href;
+
+    console.log(
+        "URL complète de l'image :",
+        imageUrl
+    );
+
     const response =
-        await fetch(chemin);
+        await fetch(imageUrl);
 
     if (!response.ok) {
 
         throw new Error(
             "Impossible de charger l'image : " +
-            chemin +
+            imageUrl +
             " - HTTP " +
             response.status
         );
@@ -77,12 +89,203 @@ async function chargerImage(chemin) {
 
     console.log(
         "Image chargée avec succès :",
-        chemin,
+        imageUrl,
         buffer.byteLength,
         "octets"
     );
 
     return new Uint8Array(buffer);
+}
+
+
+// =====================================================
+// TÉLÉCHARGER / PARTAGER LE FICHIER WORD
+// COMPATIBLE PC + ANDROID + IPHONE
+// =====================================================
+
+async function telechargerWord(blob, fileName) {
+
+    console.log(
+        "Préparation du téléchargement Word..."
+    );
+
+    // =================================================
+    // CRÉER LE FICHIER WORD
+    // =================================================
+
+    const wordFile =
+        new File(
+            [blob],
+            fileName,
+            {
+                type:
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        );
+
+
+    // =================================================
+    // DÉTECTION MOBILE
+    // =================================================
+
+    const isMobile =
+        /Android|iPhone|iPad|iPod/i.test(
+            navigator.userAgent
+        );
+
+
+    console.log(
+        "Appareil mobile :",
+        isMobile
+    );
+
+
+    // =================================================
+    // MOBILE : PARTAGE DU VRAI FICHIER DOCX
+    // =================================================
+
+    if (
+        isMobile &&
+        navigator.share &&
+        navigator.canShare
+    ) {
+
+        try {
+
+            const shareData = {
+
+                files: [
+                    wordFile
+                ],
+
+                title:
+                    "Question écrite",
+
+                text:
+                    "Question écrite"
+
+            };
+
+
+            // Vérifier si le navigateur accepte
+            // le partage du fichier DOCX
+
+            if (
+                navigator.canShare(shareData)
+            ) {
+
+                console.log(
+                    "Partage du fichier Word sur mobile..."
+                );
+
+
+                await navigator.share(
+                    shareData
+                );
+
+
+                console.log(
+                    "Fichier Word partagé avec succès."
+                );
+
+
+                return;
+
+            }
+
+        }
+
+        catch (error) {
+
+            // L'utilisateur peut avoir fermé
+            // la fenêtre de partage.
+
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                console.log(
+                    "Partage annulé par l'utilisateur."
+                );
+
+                return;
+            }
+
+
+            console.error(
+                "Erreur partage mobile :",
+                error
+            );
+
+        }
+
+    }
+
+
+    // =================================================
+    // FALLBACK : TÉLÉCHARGEMENT CLASSIQUE
+    // PC + NAVIGATEURS MOBILES NON COMPATIBLES
+    // =================================================
+
+    console.log(
+        "Utilisation du téléchargement classique..."
+    );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        fileName;
+
+
+    link.style.display =
+        "none";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    document.body.removeChild(
+        link
+    );
+
+
+    // Ne pas libérer immédiatement
+    // sur certains navigateurs mobiles
+
+    setTimeout(
+        function () {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },
+        10000
+    );
+
+
+    console.log(
+        "Téléchargement Word terminé."
+    );
 }
 
 
@@ -236,7 +439,6 @@ function initialiserApplication() {
 
         {
             fonction: "السيد كاتب الدولة المكلف بالإدماج الاجتماعي"
-
         }
 
     ];
@@ -247,23 +449,33 @@ function initialiserApplication() {
     // =================================================
 
     const deputeSelect =
-        document.getElementById("depute_id");
+        document.getElementById(
+            "depute_id"
+        );
 
 
     const ministreSelect =
-        document.getElementById("ministre_id");
+        document.getElementById(
+            "ministre_id"
+        );
 
 
     const subjectInput =
-        document.getElementById("subject");
+        document.getElementById(
+            "subject"
+        );
 
 
     const textInput =
-        document.getElementById("text");
+        document.getElementById(
+            "text"
+        );
 
 
     const generateButton =
-        document.getElementById("generateWord");
+        document.getElementById(
+            "generateWord"
+        );
 
 
     // =================================================
@@ -324,38 +536,64 @@ function initialiserApplication() {
     // REMPLIR LA LISTE DES DÉPUTÉS
     // =================================================
 
-    deputes.forEach(function (depute, index) {
+    deputes.forEach(
+        function (
+            depute,
+            index
+        ) {
 
-        const option =
-            document.createElement("option");
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-        option.value = index;
 
-        option.textContent =
-            depute.nom;
+            option.value =
+                index;
 
-        deputeSelect.appendChild(option);
 
-    });
+            option.textContent =
+                depute.nom;
+
+
+            deputeSelect.appendChild(
+                option
+            );
+
+        }
+    );
 
 
     // =================================================
     // REMPLIR LA LISTE DES MINISTRES
     // =================================================
 
-    ministres.forEach(function (ministre, index) {
+    ministres.forEach(
+        function (
+            ministre,
+            index
+        ) {
 
-        const option =
-            document.createElement("option");
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-        option.value = index;
 
-        option.textContent =
-            ministre.fonction;
+            option.value =
+                index;
 
-        ministreSelect.appendChild(option);
 
-    });
+            option.textContent =
+                ministre.fonction;
+
+
+            ministreSelect.appendChild(
+                option
+            );
+
+        }
+    );
 
 
     console.log(
@@ -405,7 +643,9 @@ function initialiserApplication() {
             // VÉRIFICATIONS
             // =============================================
 
-            if (deputeIndex === "") {
+            if (
+                deputeIndex === ""
+            ) {
 
                 alert(
                     "Veuillez choisir un député."
@@ -415,7 +655,9 @@ function initialiserApplication() {
             }
 
 
-            if (ministreIndex === "") {
+            if (
+                ministreIndex === ""
+            ) {
 
                 alert(
                     "Veuillez choisir le ministre concerné."
@@ -425,7 +667,9 @@ function initialiserApplication() {
             }
 
 
-            if (subject === "") {
+            if (
+                subject === ""
+            ) {
 
                 alert(
                     "Veuillez saisir le sujet."
@@ -435,7 +679,9 @@ function initialiserApplication() {
             }
 
 
-            if (text === "") {
+            if (
+                text === ""
+            ) {
 
                 alert(
                     "Veuillez saisir le texte."
@@ -450,7 +696,9 @@ function initialiserApplication() {
             // =============================================
 
             const depute =
-                deputes[deputeIndex];
+                deputes[
+                    deputeIndex
+                ];
 
 
             // =============================================
@@ -458,7 +706,9 @@ function initialiserApplication() {
             // =============================================
 
             const ministre =
-                ministres[ministreIndex];
+                ministres[
+                    ministreIndex
+                ];
 
 
             const fonctionMinistre =
@@ -470,8 +720,7 @@ function initialiserApplication() {
 
 
             // =============================================
-            // DÉTERMINER LA FONCTION
-            // DU DÉPUTÉ
+            // DÉTERMINER LA FONCTION DU DÉPUTÉ
             // =============================================
 
             let titreDepute;
@@ -515,10 +764,12 @@ function initialiserApplication() {
 
             const nomDepute =
                 nomDeputeOriginal
+
                     .replace(
                         /^السيد النائب\s*/u,
                         ""
                     )
+
                     .replace(
                         /^السيدة النائبة\s*/u,
                         ""
@@ -624,12 +875,16 @@ function initialiserApplication() {
             const symboleamazighImageRun =
                 new ImageRun({
 
-                    data: symboleamazighImage,
+                    data:
+                        symboleamazighImage,
 
                     transformation: {
 
-                        width: 120,
-                        height: 120
+                        width:
+                            120,
+
+                        height:
+                            120
 
                     },
 
@@ -640,7 +895,8 @@ function initialiserApplication() {
                             relative:
                                 HorizontalPositionRelativeFrom.PAGE,
 
-                            align: "left"
+                            align:
+                                "left"
 
                         },
 
@@ -649,17 +905,22 @@ function initialiserApplication() {
                             relative:
                                 VerticalPositionRelativeFrom.PAGE,
 
-                            offset: 0
+                            offset:
+                                0
 
                         },
 
-                        allowOverlap: true,
+                        allowOverlap:
+                            true,
 
-                        lockAnchor: true,
+                        lockAnchor:
+                            true,
 
-                        behindDocument: false,
+                        behindDocument:
+                            false,
 
-                        layoutInCell: true
+                        layoutInCell:
+                            true
 
                     }
 
@@ -673,12 +934,16 @@ function initialiserApplication() {
             const symboleImageRun =
                 new ImageRun({
 
-                    data: symboleImage,
+                    data:
+                        symboleImage,
 
                     transformation: {
 
-                        width: 120,
-                        height: 120
+                        width:
+                            120,
+
+                        height:
+                            120
 
                     },
 
@@ -689,7 +954,8 @@ function initialiserApplication() {
                             relative:
                                 HorizontalPositionRelativeFrom.PAGE,
 
-                            align: "right"
+                            align:
+                                "right"
 
                         },
 
@@ -698,17 +964,22 @@ function initialiserApplication() {
                             relative:
                                 VerticalPositionRelativeFrom.PAGE,
 
-                            offset: 0
+                            offset:
+                                0
 
                         },
 
-                        allowOverlap: true,
+                        allowOverlap:
+                            true,
 
-                        lockAnchor: true,
+                        lockAnchor:
+                            true,
 
-                        behindDocument: false,
+                        behindDocument:
+                            false,
 
-                        layoutInCell: true
+                        layoutInCell:
+                            true
 
                     }
 
@@ -722,12 +993,16 @@ function initialiserApplication() {
             const royaumeImageRun =
                 new ImageRun({
 
-                    data: royaumeImage,
+                    data:
+                        royaumeImage,
 
                     transformation: {
 
-                        width: 200,
-                        height: 120
+                        width:
+                            200,
+
+                        height:
+                            120
 
                     },
 
@@ -738,7 +1013,8 @@ function initialiserApplication() {
                             relative:
                                 HorizontalPositionRelativeFrom.PAGE,
 
-                            align: "center"
+                            align:
+                                "center"
 
                         },
 
@@ -747,17 +1023,22 @@ function initialiserApplication() {
                             relative:
                                 VerticalPositionRelativeFrom.PAGE,
 
-                            offset: 0
+                            offset:
+                                0
 
                         },
 
-                        allowOverlap: true,
+                        allowOverlap:
+                            true,
 
-                        lockAnchor: true,
+                        lockAnchor:
+                            true,
 
-                        behindDocument: false,
+                        behindDocument:
+                            false,
 
-                        layoutInCell: true
+                        layoutInCell:
+                            true
 
                     }
 
@@ -774,9 +1055,11 @@ function initialiserApplication() {
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 0
+                        after:
+                            0
 
                     },
 
@@ -805,9 +1088,11 @@ function initialiserApplication() {
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 1400
+                        after:
+                            1400
 
                     },
 
@@ -815,7 +1100,8 @@ function initialiserApplication() {
 
                         new TextRun({
 
-                            text: ""
+                            text:
+                                ""
 
                         })
 
@@ -837,13 +1123,16 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.CENTER,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 500
+                        after:
+                            500
 
                     },
 
@@ -857,9 +1146,11 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 44,
+                            size:
+                                44,
 
-                            bold: true
+                            bold:
+                                true
 
                         })
 
@@ -881,15 +1172,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.JUSTIFIED,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 500,
+                        after:
+                            500,
 
-                        line: 276
+                        line:
+                            276
 
                     },
 
@@ -904,9 +1199,11 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 40,
+                            size:
+                                40,
 
-                            bold: true
+                            bold:
+                                true
 
                         })
 
@@ -928,15 +1225,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.CENTER,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 500,
+                        after:
+                            500,
 
-                        line: 276
+                        line:
+                            276
 
                     },
 
@@ -950,9 +1251,11 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 44,
+                            size:
+                                44,
 
-                            bold: true
+                            bold:
+                                true
 
                         })
 
@@ -974,15 +1277,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.JUSTIFIED,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 500,
+                        after:
+                            500,
 
-                        line: 276
+                        line:
+                            276
 
                     },
 
@@ -997,7 +1304,8 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 36
+                            size:
+                                36
 
                         })
 
@@ -1013,83 +1321,95 @@ function initialiserApplication() {
             // =====================================================
 
             const lines =
-                text.split(/\r\n|\r|\n/);
+                text.split(
+                    /\r\n|\r|\n/
+                );
 
 
-            lines.forEach(function (line) {
+            lines.forEach(
+                function (line) {
 
-                line =
-                    line.trim();
+                    line =
+                        line.trim();
 
 
-                // =============================================
-                // LIGNE VIDE
-                // =============================================
+                    // =============================================
+                    // LIGNE VIDE
+                    // =============================================
 
-                if (line === "") {
+                    if (
+                        line === ""
+                    ) {
+
+                        children.push(
+
+                            new Paragraph({
+
+                                spacing: {
+
+                                    after:
+                                        100
+
+                                }
+
+                            })
+
+                        );
+
+                        return;
+                    }
+
+
+                    // =============================================
+                    // LIGNE NORMALE
+                    // =============================================
 
                     children.push(
 
                         new Paragraph({
 
+                            alignment:
+                                AlignmentType.JUSTIFIED,
+
+                            bidirectional:
+                                true,
+
                             spacing: {
 
-                                after: 100
+                                before:
+                                    0,
 
-                            }
+                                after:
+                                    120,
+
+                                line:
+                                    276
+
+                            },
+
+                            children: [
+
+                                new TextRun({
+
+                                    text:
+                                        line,
+
+                                    font:
+                                        "Sakkal Majalla",
+
+                                    size:
+                                        36
+
+                                })
+
+                            ]
 
                         })
 
                     );
 
-                    return;
                 }
-
-
-                // =============================================
-                // LIGNE NORMALE
-                // =============================================
-
-                children.push(
-
-                    new Paragraph({
-
-                        alignment:
-                            AlignmentType.JUSTIFIED,
-
-                        bidirectional: true,
-
-                        spacing: {
-
-                            before: 0,
-
-                            after: 120,
-
-                            line: 276
-
-                        },
-
-                        children: [
-
-                            new TextRun({
-
-                                text:
-                                    line,
-
-                                font:
-                                    "Sakkal Majalla",
-
-                                size: 36
-
-                            })
-
-                        ]
-
-                    })
-
-                );
-
-            });
+            );
 
 
             // =====================================================
@@ -1103,15 +1423,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.CENTER,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 500,
+                        before:
+                            500,
 
-                        after: 100,
+                        after:
+                            100,
 
-                        line: 240
+                        line:
+                            240
 
                     },
 
@@ -1125,9 +1449,11 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 44,
+                            size:
+                                44,
 
-                            bold: true
+                            bold:
+                                true
 
                         })
 
@@ -1149,15 +1475,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.CENTER,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 0,
+                        after:
+                            0,
 
-                        line: 240
+                        line:
+                            240
 
                     },
 
@@ -1171,9 +1501,11 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 44,
+                            size:
+                                44,
 
-                            bold: true
+                            bold:
+                                true
 
                         })
 
@@ -1195,15 +1527,19 @@ function initialiserApplication() {
                     alignment:
                         AlignmentType.CENTER,
 
-                    bidirectional: true,
+                    bidirectional:
+                        true,
 
                     spacing: {
 
-                        before: 0,
+                        before:
+                            0,
 
-                        after: 0,
+                        after:
+                            0,
 
-                        line: 240
+                        line:
+                            240
 
                     },
 
@@ -1217,7 +1553,8 @@ function initialiserApplication() {
                             font:
                                 "Sakkal Majalla",
 
-                            size: 36
+                            size:
+                                36
 
                         })
 
@@ -1245,14 +1582,17 @@ function initialiserApplication() {
 
                                     margin: {
 
-                                        // TRÈS PETITE MARGE EN HAUT
-                                        top: 100,
+                                        top:
+                                            100,
 
-                                        bottom: 1000,
+                                        bottom:
+                                            1000,
 
-                                        left: 1000,
+                                        left:
+                                            1000,
 
-                                        right: 1000
+                                        right:
+                                            1000
 
                                     }
 
@@ -1281,7 +1621,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // GÉNÉRER LE FICHIER
+            // GÉNÉRER LE FICHIER WORD
             // =====================================================
 
             try {
@@ -1297,40 +1637,41 @@ function initialiserApplication() {
                     );
 
 
+                console.log(
+                    "Blob Word généré :",
+                    blob.size,
+                    "octets"
+                );
+
+
                 // =================================================
-                // TÉLÉCHARGEMENT
+                // VÉRIFIER LE TYPE DU BLOB
                 // =================================================
 
-                const url =
-                    URL.createObjectURL(blob);
+                const wordBlob =
+                    new Blob(
+                        [blob],
+                        {
+                            type:
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        }
+                    );
 
 
-                const link =
-                    document.createElement("a");
+                console.log(
+                    "Type du fichier :",
+                    wordBlob.type
+                );
 
 
-                link.href =
-                    url;
+                // =================================================
+                // TÉLÉCHARGER / PARTAGER
+                // =================================================
 
-
-                link.download =
-                    fileName;
-
-
-                document.body.appendChild(link);
-
-
-                link.click();
-
-
-                document.body.removeChild(link);
-
-
-                setTimeout(function () {
-
-                    URL.revokeObjectURL(url);
-
-                }, 1000);
+                await telechargerWord(
+                    wordBlob,
+                    fileName
+                );
 
 
                 console.log(
@@ -1349,7 +1690,8 @@ function initialiserApplication() {
 
 
                 alert(
-                    "Une erreur est survenue lors de la génération du fichier Word."
+                    "Une erreur est survenue lors de la génération du fichier Word.\n\n" +
+                    error.message
                 );
 
             }
