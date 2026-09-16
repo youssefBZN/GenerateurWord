@@ -1,3 +1,4 @@
+
 // =====================================================
 // CHARGEMENT DE LA LIBRAIRIE DOCX
 // =====================================================
@@ -27,10 +28,8 @@ docxScript.onload = function () {
         return;
     }
 
-    // La librairie est maintenant disponible
     initialiserApplication();
 };
-
 
 docxScript.onerror = function () {
 
@@ -42,7 +41,6 @@ docxScript.onerror = function () {
         "Impossible de charger la librairie Word. Vérifiez votre connexion Internet."
     );
 };
-
 
 document.head.appendChild(docxScript);
 
@@ -58,7 +56,6 @@ async function chargerImage(chemin) {
         chemin
     );
 
-    // Construire une URL absolue
     const imageUrl =
         new URL(
             chemin,
@@ -81,7 +78,6 @@ async function chargerImage(chemin) {
             " - HTTP " +
             response.status
         );
-
     }
 
     const buffer =
@@ -99,8 +95,7 @@ async function chargerImage(chemin) {
 
 
 // =====================================================
-// TÉLÉCHARGER / PARTAGER LE FICHIER WORD
-// COMPATIBLE PC + ANDROID + IPHONE
+// TÉLÉCHARGER LE FICHIER WORD
 // =====================================================
 
 async function telechargerWord(blob, fileName) {
@@ -108,10 +103,6 @@ async function telechargerWord(blob, fileName) {
     console.log(
         "Préparation du téléchargement Word..."
     );
-
-    // =================================================
-    // CRÉER LE FICHIER WORD
-    // =================================================
 
     const wordFile =
         new File(
@@ -123,26 +114,15 @@ async function telechargerWord(blob, fileName) {
             }
         );
 
-
-    // =================================================
-    // DÉTECTION MOBILE
-    // =================================================
-
     const isMobile =
         /Android|iPhone|iPad|iPod/i.test(
             navigator.userAgent
         );
 
-
     console.log(
         "Appareil mobile :",
         isMobile
     );
-
-
-    // =================================================
-    // MOBILE : PARTAGE DU VRAI FICHIER DOCX
-    // =================================================
 
     if (
         isMobile &&
@@ -163,12 +143,7 @@ async function telechargerWord(blob, fileName) {
 
                 text:
                     "Question écrite"
-
             };
-
-
-            // Vérifier si le navigateur accepte
-            // le partage du fichier DOCX
 
             if (
                 navigator.canShare(shareData)
@@ -178,27 +153,20 @@ async function telechargerWord(blob, fileName) {
                     "Partage du fichier Word sur mobile..."
                 );
 
-
                 await navigator.share(
                     shareData
                 );
-
 
                 console.log(
                     "Fichier Word partagé avec succès."
                 );
 
-
                 return;
-
             }
 
         }
 
         catch (error) {
-
-            // L'utilisateur peut avoir fermé
-            // la fenêtre de partage.
 
             if (
                 error.name ===
@@ -212,64 +180,43 @@ async function telechargerWord(blob, fileName) {
                 return;
             }
 
-
             console.error(
                 "Erreur partage mobile :",
                 error
             );
-
         }
-
     }
-
-
-    // =================================================
-    // FALLBACK : TÉLÉCHARGEMENT CLASSIQUE
-    // PC + NAVIGATEURS MOBILES NON COMPATIBLES
-    // =================================================
 
     console.log(
         "Utilisation du téléchargement classique..."
     );
-
 
     const url =
         URL.createObjectURL(
             blob
         );
 
-
     const link =
         document.createElement("a");
-
 
     link.href =
         url;
 
-
     link.download =
         fileName;
 
-
     link.style.display =
         "none";
-
 
     document.body.appendChild(
         link
     );
 
-
     link.click();
-
 
     document.body.removeChild(
         link
     );
-
-
-    // Ne pas libérer immédiatement
-    // sur certains navigateurs mobiles
 
     setTimeout(
         function () {
@@ -281,7 +228,6 @@ async function telechargerWord(blob, fileName) {
         },
         10000
     );
-
 
     console.log(
         "Téléchargement Word terminé."
@@ -299,11 +245,6 @@ function initialiserApplication() {
         "Initialisation de l'application..."
     );
 
-
-    // =================================================
-    // LISTE DES DÉPUTÉS
-    // =================================================
-
     const deputes = [
 
         {
@@ -314,14 +255,8 @@ function initialiserApplication() {
             nom: "السيد النائب نبيل الدخش"
         }
 
-        // Ajouter ici les autres députés
-
     ];
 
-
-    // =================================================
-    // LISTE DES MINISTRES
-    // =================================================
 
     const ministres = [
 
@@ -444,43 +379,31 @@ function initialiserApplication() {
     ];
 
 
-    // =================================================
-    // RÉCUPÉRER LES ÉLÉMENTS HTML
-    // =================================================
-
     const deputeSelect =
         document.getElementById(
             "depute_id"
         );
-
 
     const ministreSelect =
         document.getElementById(
             "ministre_id"
         );
 
-
     const subjectInput =
         document.getElementById(
             "subject"
         );
-
 
     const textInput =
         document.getElementById(
             "text"
         );
 
-
     const generateButton =
         document.getElementById(
             "generateWord"
         );
 
-
-    // =================================================
-    // VÉRIFICATION DES ÉLÉMENTS
-    // =================================================
 
     if (!deputeSelect) {
 
@@ -532,10 +455,6 @@ function initialiserApplication() {
     }
 
 
-    // =================================================
-    // REMPLIR LA LISTE DES DÉPUTÉS
-    // =================================================
-
     deputes.forEach(
         function (
             depute,
@@ -547,14 +466,11 @@ function initialiserApplication() {
                     "option"
                 );
 
-
             option.value =
                 index;
 
-
             option.textContent =
                 depute.nom;
-
 
             deputeSelect.appendChild(
                 option
@@ -563,10 +479,6 @@ function initialiserApplication() {
         }
     );
 
-
-    // =================================================
-    // REMPLIR LA LISTE DES MINISTRES
-    // =================================================
 
     ministres.forEach(
         function (
@@ -579,14 +491,11 @@ function initialiserApplication() {
                     "option"
                 );
 
-
             option.value =
                 index;
 
-
             option.textContent =
                 ministre.fonction;
-
 
             ministreSelect.appendChild(
                 option
@@ -600,15 +509,10 @@ function initialiserApplication() {
         "Liste des députés chargée."
     );
 
-
     console.log(
         "Liste des ministres chargée."
     );
 
-
-    // =================================================
-    // BOUTON GÉNÉRER WORD
-    // =================================================
 
     generateButton.addEventListener(
         "click",
@@ -619,29 +523,18 @@ function initialiserApplication() {
             );
 
 
-            // =============================================
-            // RÉCUPÉRER LES VALEURS
-            // =============================================
-
             const subject =
                 subjectInput.value.trim();
-
 
             const text =
                 textInput.value.trim();
 
-
             const deputeIndex =
                 deputeSelect.value;
-
 
             const ministreIndex =
                 ministreSelect.value;
 
-
-            // =============================================
-            // VÉRIFICATIONS
-            // =============================================
 
             if (
                 deputeIndex === ""
@@ -691,25 +584,15 @@ function initialiserApplication() {
             }
 
 
-            // =============================================
-            // DÉPUTÉ CHOISI
-            // =============================================
-
             const depute =
                 deputes[
                     deputeIndex
                 ];
 
-
-            // =============================================
-            // MINISTRE CHOISI
-            // =============================================
-
             const ministre =
                 ministres[
                     ministreIndex
                 ];
-
 
             const fonctionMinistre =
                 ministre.fonction;
@@ -718,10 +601,6 @@ function initialiserApplication() {
             const nomDeputeOriginal =
                 depute.nom.trim();
 
-
-            // =============================================
-            // DÉTERMINER LA FONCTION DU DÉPUTÉ
-            // =============================================
 
             let titreDepute;
 
@@ -737,7 +616,6 @@ function initialiserApplication() {
 
             }
 
-
             else if (
                 nomDeputeOriginal.startsWith(
                     "السيدة النائبة"
@@ -749,7 +627,6 @@ function initialiserApplication() {
 
             }
 
-
             else {
 
                 titreDepute =
@@ -757,10 +634,6 @@ function initialiserApplication() {
 
             }
 
-
-            // =============================================
-            // SUPPRIMER LE TITRE DU NOM
-            // =============================================
 
             const nomDepute =
                 nomDeputeOriginal
@@ -781,22 +654,16 @@ function initialiserApplication() {
                 nomDepute
             );
 
-
             console.log(
                 "Fonction :",
                 titreDepute
             );
-
 
             console.log(
                 "Ministre choisi :",
                 fonctionMinistre
             );
 
-
-            // =============================================
-            // RÉCUPÉRER LES OBJETS DOCX
-            // =============================================
 
             const {
 
@@ -812,10 +679,6 @@ function initialiserApplication() {
             } = window.docx;
 
 
-            // =============================================
-            // CHARGER LES IMAGES
-            // =============================================
-
             let royaumeImage;
             let symboleImage;
             let symboleamazighImage;
@@ -828,12 +691,10 @@ function initialiserApplication() {
                         "images/royaumem.jpeg"
                     );
 
-
                 symboleImage =
                     await chargerImage(
                         "images/symbole.jpeg"
                     );
-
 
                 symboleamazighImage =
                     await chargerImage(
@@ -842,7 +703,6 @@ function initialiserApplication() {
 
             }
 
-
             catch (error) {
 
                 console.error(
@@ -850,26 +710,20 @@ function initialiserApplication() {
                     error
                 );
 
-
                 alert(
                     "Impossible de charger les images.\n\n" +
                     error.message
                 );
 
-
                 return;
             }
 
-
-            // =============================================
-            // CONTENU DU DOCUMENT
-            // =============================================
 
             const children = [];
 
 
             // =====================================================
-            // IMAGE AMAZIGH - GAUCHE
+            // IMAGE GAUCHE
             // =====================================================
 
             const symboleamazighImageRun =
@@ -928,7 +782,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // IMAGE SYMBOLE - DROITE
+            // IMAGE DROITE
             // =====================================================
 
             const symboleImageRun =
@@ -987,7 +841,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // IMAGE ROYAUME - CENTRE
+            // IMAGE CENTRALE
             // =====================================================
 
             const royaumeImageRun =
@@ -1046,7 +900,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // PARAGRAPHE DES IMAGES
+            // PARAGRAPHE DES 3 IMAGES
             // =====================================================
 
             children.push(
@@ -1079,41 +933,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // GRAND ESPACE APRÈS LES IMAGES
-            // =====================================================
-
-            children.push(
-
-                new Paragraph({
-
-                    spacing: {
-
-                        before:
-                            0,
-
-                        after:
-                            1400
-
-                    },
-
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                ""
-
-                        })
-
-                    ]
-
-                })
-
-            );
-
-
-            // =====================================================
-            // DESTINATAIRE
+            // ESPACE ENTRE L'EN-TÊTE ET LE RESTE DU TEXTE
             // =====================================================
 
             children.push(
@@ -1129,10 +949,13 @@ function initialiserApplication() {
                     spacing: {
 
                         before:
-                            0,
+                            2400,
 
                         after:
-                            500
+                            0,
+
+                        line:
+                            276
 
                     },
 
@@ -1181,7 +1004,7 @@ function initialiserApplication() {
                             0,
 
                         after:
-                            500,
+                            0,
 
                         line:
                             276
@@ -1234,7 +1057,7 @@ function initialiserApplication() {
                             0,
 
                         after:
-                            500,
+                            0,
 
                         line:
                             276
@@ -1267,7 +1090,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // PHRASE FIXE + MINISTRE
+            // INTRODUCTION + MINISTRE
             // =====================================================
 
             children.push(
@@ -1286,10 +1109,10 @@ function initialiserApplication() {
                             0,
 
                         after:
-                            500,
+                            0,
 
                         line:
-                            276
+                            240
 
                     },
 
@@ -1317,52 +1140,30 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // TEXTE DE L'UTILISATEUR
+            // TEXTE DE LA QUESTION
             // =====================================================
 
             const lines =
-                text.split(
-                    /\r\n|\r|\n/
-                );
+                text
+                    .split(/\r\n|\r|\n/)
+                    .map(function (line) {
+                        return line.trim();
+                    })
+                    .filter(function (line) {
+                        return line !== "";
+                    });
 
+
+            // =====================================================
+            // AJOUT DES PARAGRAPHES DU TEXTE
+            // =====================================================
 
             lines.forEach(
-                function (line) {
+                function (line, index) {
 
-                    line =
-                        line.trim();
+                    const estDerniereLigne =
+                        index === lines.length - 1;
 
-
-                    // =============================================
-                    // LIGNE VIDE
-                    // =============================================
-
-                    if (
-                        line === ""
-                    ) {
-
-                        children.push(
-
-                            new Paragraph({
-
-                                spacing: {
-
-                                    after:
-                                        100
-
-                                }
-
-                            })
-
-                        );
-
-                        return;
-                    }
-
-
-                    // =============================================
-                    // LIGNE NORMALE
-                    // =============================================
 
                     children.push(
 
@@ -1374,13 +1175,25 @@ function initialiserApplication() {
                             bidirectional:
                                 true,
 
+                            // =================================================
+                            // IMPORTANT :
+                            // Le dernier paragraphe du texte reste avec
+                            // la formule de politesse.
+                            // =================================================
+
+                            keepNext:
+                                estDerniereLigne,
+
+                            keepLines:
+                                true,
+
                             spacing: {
 
                                 before:
                                     0,
 
                                 after:
-                                    120,
+                                    0,
 
                                 line:
                                     276
@@ -1413,7 +1226,13 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // FORMULE FINALE
+            // SIGNATURE BLOCK
+            // =====================================================
+
+            // =====================================================
+            // FORMULE DE POLITESSE
+            //
+            // keepNext = garder avec le nom du député
             // =====================================================
 
             children.push(
@@ -1426,13 +1245,19 @@ function initialiserApplication() {
                     bidirectional:
                         true,
 
+                    keepNext:
+                        true,
+
+                    keepLines:
+                        true,
+
                     spacing: {
 
                         before:
-                            500,
+                            0,
 
                         after:
-                            100,
+                            0,
 
                         line:
                             240
@@ -1466,6 +1291,8 @@ function initialiserApplication() {
 
             // =====================================================
             // NOM DU DÉPUTÉ
+            //
+            // keepNext = garder avec la fonction du député
             // =====================================================
 
             children.push(
@@ -1476,6 +1303,12 @@ function initialiserApplication() {
                         AlignmentType.CENTER,
 
                     bidirectional:
+                        true,
+
+                    keepNext:
+                        true,
+
+                    keepLines:
                         true,
 
                     spacing: {
@@ -1530,6 +1363,9 @@ function initialiserApplication() {
                     bidirectional:
                         true,
 
+                    keepLines:
+                        true,
+
                     spacing: {
 
                         before:
@@ -1566,7 +1402,7 @@ function initialiserApplication() {
 
 
             // =====================================================
-            // CRÉER LE DOCUMENT WORD
+            // DOCUMENT WORD
             // =====================================================
 
             const wordDocument =
@@ -1610,19 +1446,11 @@ function initialiserApplication() {
                 });
 
 
-            // =====================================================
-            // NOM DU FICHIER
-            // =====================================================
-
             const fileName =
                 "سؤال كتابي حول " +
                 subject +
                 ".docx";
 
-
-            // =====================================================
-            // GÉNÉRER LE FICHIER WORD
-            // =====================================================
 
             try {
 
@@ -1630,23 +1458,16 @@ function initialiserApplication() {
                     "Génération du fichier Word..."
                 );
 
-
                 const blob =
                     await Packer.toBlob(
                         wordDocument
                     );
-
 
                 console.log(
                     "Blob Word généré :",
                     blob.size,
                     "octets"
                 );
-
-
-                // =================================================
-                // VÉRIFIER LE TYPE DU BLOB
-                // =================================================
 
                 const wordBlob =
                     new Blob(
@@ -1657,29 +1478,21 @@ function initialiserApplication() {
                         }
                     );
 
-
                 console.log(
                     "Type du fichier :",
                     wordBlob.type
                 );
-
-
-                // =================================================
-                // TÉLÉCHARGER / PARTAGER
-                // =================================================
 
                 await telechargerWord(
                     wordBlob,
                     fileName
                 );
 
-
                 console.log(
                     "Fichier Word généré avec succès."
                 );
 
             }
-
 
             catch (error) {
 
@@ -1688,12 +1501,10 @@ function initialiserApplication() {
                     error
                 );
 
-
                 alert(
                     "Une erreur est survenue lors de la génération du fichier Word.\n\n" +
                     error.message
                 );
-
             }
 
         }
