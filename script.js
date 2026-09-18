@@ -1,3 +1,4 @@
+
 // =====================================================
 // CHARGEMENT DE LA LIBRAIRIE DOCX
 // =====================================================
@@ -15,8 +16,7 @@ docxScript.onload = function () {
     );
 
     if (
-        typeof window.docx ===
-        "undefined"
+        typeof window.docx === "undefined"
     ) {
 
         console.error(
@@ -53,11 +53,24 @@ document.head.appendChild(
 
 
 // =====================================================
-// POLICE UTILISÉE DANS WORD
+// POLICE
 // =====================================================
 
 const POLICE_ARABE =
     "Traditional Arabic";
+
+
+// =====================================================
+// DÉTECTION MOBILE
+// =====================================================
+
+function estAppareilMobile() {
+
+    return /Android|iPhone|iPad|iPod/i.test(
+        navigator.userAgent
+    );
+
+}
 
 
 // =====================================================
@@ -111,6 +124,7 @@ async function chargerImage(
 
 // =====================================================
 // TÉLÉCHARGER WORD
+// UTILISÉ SUR ORDINATEUR
 // =====================================================
 
 async function telechargerWord(
@@ -118,90 +132,21 @@ async function telechargerWord(
     fileName
 ) {
 
-    const wordFile =
-        new File(
+    const wordBlob =
+        new Blob(
             [blob],
-            fileName,
             {
+
                 type:
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
             }
         );
 
-
-    const isMobile =
-        /Android|iPhone|iPad|iPod/i.test(
-            navigator.userAgent
-        );
-
-
-    if (
-        isMobile &&
-        navigator.share &&
-        navigator.canShare
-    ) {
-
-        try {
-
-            const shareData = {
-
-                files: [
-                    wordFile
-                ],
-
-                title:
-                    fileName
-
-            };
-
-
-            if (
-                navigator.canShare(
-                    shareData
-                )
-            ) {
-
-                await navigator.share(
-                    shareData
-                );
-
-                return;
-
-            }
-
-        }
-
-        catch (
-            error
-        ) {
-
-            if (
-                error.name ===
-                "AbortError"
-            ) {
-
-                return;
-
-            }
-
-
-            console.error(
-                "Erreur partage mobile :",
-                error
-            );
-
-        }
-
-    }
-
-
-    // =================================================
-    // TÉLÉCHARGEMENT NORMAL
-    // =================================================
 
     const url =
         URL.createObjectURL(
-            blob
+            wordBlob
         );
 
 
@@ -251,7 +196,7 @@ async function telechargerWord(
 
 
 // =====================================================
-// DONNÉES
+// DONNÉES DÉPUTÉS
 // =====================================================
 
 const deputes = [
@@ -268,6 +213,10 @@ const deputes = [
 
 ];
 
+
+// =====================================================
+// DONNÉES MINISTRES
+// =====================================================
 
 const ministres = [
 
@@ -420,7 +369,7 @@ const ministres = [
 
 
 // =====================================================
-// TRAITEMENT DU DÉPUTÉ
+// TRAITEMENT DÉPUTÉ
 // =====================================================
 
 function traiterDepute(
@@ -445,7 +394,6 @@ function traiterDepute(
 
     }
 
-
     else if (
         nomOriginal.startsWith(
             "السيدة النائبة"
@@ -456,7 +404,6 @@ function traiterDepute(
             "نائبة برلمانية";
 
     }
-
 
     else {
 
@@ -547,7 +494,7 @@ function initialiserApplication() {
 
 
     // =================================================
-    // REMPLIR DÉPUTÉS
+    // DÉPUTÉS
     // =================================================
 
     deputes.forEach(
@@ -579,7 +526,7 @@ function initialiserApplication() {
 
 
     // =================================================
-    // REMPLIR MINISTRES
+    // MINISTRES
     // =================================================
 
     ministres.forEach(
@@ -715,8 +662,67 @@ function initialiserApplication() {
                 ministre.fonction;
 
 
+            const mobile =
+                estAppareilMobile();
+
+
             // =================================================
-            // LIBRAIRIE DOCX
+            // SUR MOBILE :
+            // PDF UNIQUEMENT
+            // =================================================
+            //
+            // IMPORTANT :
+            // On ne lance PAS le téléchargement Word
+            // avant le PDF sur iPhone/Android.
+            //
+            // Cela évite les conflits avec navigator.share().
+            // =================================================
+
+            if (
+                mobile
+            ) {
+
+                try {
+
+                    await genererPDF(
+
+                        subject,
+
+                        text,
+
+                        fonctionMinistre,
+
+                        nomDepute,
+
+                        titreDepute
+
+                    );
+
+                }
+
+                catch (
+                    error
+                ) {
+
+                    console.error(
+                        "Erreur PDF mobile :",
+                        error
+                    );
+
+                    alert(
+                        "Erreur pendant la génération du PDF.\n\n" +
+                        error.message
+                    );
+
+                }
+
+                return;
+
+            }
+
+
+            // =================================================
+            // ORDINATEUR
             // =================================================
 
             const {
@@ -734,7 +740,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // CHARGEMENT DES IMAGES
+            // CHARGEMENT IMAGES WORD
             // =================================================
 
             let royaumeImage;
@@ -787,7 +793,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // FONCTION TEXT RUN RTL
+            // TEXT RUN ARABE
             // =================================================
 
             function runArabe(
@@ -821,7 +827,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // PARAGRAPHE RTL
+            // PARAGRAPHE ARABE
             // =================================================
 
             function paragrapheArabe(
@@ -1064,7 +1070,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // EN-TÊTE
+            // EN-TÊTE WORD
             // =================================================
 
             children.push(
@@ -1194,7 +1200,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // INTRODUCTION + MINISTRE
+            // INTRODUCTION
             // =================================================
 
             children.push(
@@ -1297,7 +1303,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // FORMULE DE POLITESSE
+            // FORMULE
             // =================================================
 
             children.push(
@@ -1447,7 +1453,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // NOM DU FICHIER WORD
+            // NOM WORD
             // =================================================
 
             const fileName =
@@ -1468,20 +1474,8 @@ function initialiserApplication() {
                     );
 
 
-                const wordBlob =
-                    new Blob(
-                        [blob],
-                        {
-
-                            type:
-                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
-                        }
-                    );
-
-
                 await telechargerWord(
-                    wordBlob,
+                    blob,
                     fileName
                 );
 
@@ -1514,7 +1508,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // GÉNÉRER PDF DIRECT
+            // PDF SUR PC
             // =================================================
 
             try {
@@ -1553,57 +1547,77 @@ function initialiserApplication() {
 
 
 // =====================================================
-// TÉLÉCHARGEMENT PDF MOBILE
+// FALLBACK PDF MOBILE
+// =====================================================
+//
+// Sur iPhone, <a download> avec un Blob peut être
+// mal interprété par Safari.
+// On ouvre donc directement le PDF dans Safari.
+//
 // =====================================================
 
-function telechargerPDFMobile(
-    blob,
-    nomFichier
+function ouvrirPDFMobile(
+    blob
 ) {
+
+    const pdfBlob =
+        new Blob(
+            [blob],
+            {
+                type:
+                    "application/pdf"
+            }
+        );
+
 
     const url =
         URL.createObjectURL(
-            blob
+            pdfBlob
         );
 
 
-    const lien =
-        document.createElement(
-            "a"
+    // =================================================
+    // IPHONE / SAFARI
+    // =================================================
+
+    try {
+
+        window.location.href =
+            url;
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            "Impossible d'ouvrir le PDF :",
+            error
         );
 
+        const lien =
+            document.createElement(
+                "a"
+            );
 
-    lien.href =
-        url;
+        lien.href =
+            url;
 
+        lien.target =
+            "_blank";
 
-    lien.download =
-        nomFichier;
+        document.body.appendChild(
+            lien
+        );
 
+        lien.click();
 
-    lien.target =
-        "_blank";
+        document.body.removeChild(
+            lien
+        );
 
-
-    lien.rel =
-        "noopener";
-
-
-    lien.style.display =
-        "none";
-
-
-    document.body.appendChild(
-        lien
-    );
-
-
-    lien.click();
-
-
-    document.body.removeChild(
-        lien
-    );
+    }
 
 
     setTimeout(
@@ -1614,15 +1628,190 @@ function telechargerPDFMobile(
             );
 
         },
-        30000
+        60000
     );
 
 }
 
 
 // =====================================================
-// GÉNÉRATION PDF DIRECT
-// VERSION PC + MOBILE
+// PARTAGE / TÉLÉCHARGEMENT PDF
+// =====================================================
+
+async function envoyerPDFMobile(
+    blob,
+    nomFichier
+) {
+
+    // =================================================
+    // BLOB PDF PROPRE
+    // =================================================
+
+    const pdfBlob =
+        new Blob(
+            [blob],
+            {
+                type:
+                    "application/pdf"
+            }
+        );
+
+
+    console.log(
+        "PDF MIME :",
+        pdfBlob.type
+    );
+
+
+    console.log(
+        "PDF taille :",
+        pdfBlob.size
+    );
+
+
+    if (
+        pdfBlob.size === 0
+    ) {
+
+        throw new Error(
+            "Le PDF généré est vide."
+        );
+
+    }
+
+
+    // =================================================
+    // FICHIER PDF
+    // =================================================
+
+    const fichier =
+        new File(
+            [pdfBlob],
+            nomFichier,
+            {
+                type:
+                    "application/pdf",
+                lastModified:
+                    Date.now()
+            }
+        );
+
+
+    console.log(
+        "Nom fichier :",
+        fichier.name
+    );
+
+
+    console.log(
+        "Type fichier :",
+        fichier.type
+    );
+
+
+    // =================================================
+    // PARTAGE NATIF
+    // =================================================
+
+    if (
+        typeof navigator.share ===
+        "function"
+    ) {
+
+        try {
+
+            let partagePossible =
+                true;
+
+
+            if (
+                typeof navigator.canShare ===
+                "function"
+            ) {
+
+                partagePossible =
+                    navigator.canShare(
+                        {
+                            files:
+                                [fichier]
+                        }
+                    );
+
+            }
+
+
+            console.log(
+                "Partage fichier possible :",
+                partagePossible
+            );
+
+
+            if (
+                partagePossible
+            ) {
+
+                await navigator.share({
+
+                    files:
+                        [fichier],
+
+                    title:
+                        "Question écrite",
+
+                    text:
+                        "Question écrite"
+
+                });
+
+
+                console.log(
+                    "PDF partagé avec succès."
+                );
+
+
+                return;
+
+            }
+
+        }
+
+        catch (
+            error
+        ) {
+
+            console.log(
+                "Partage natif non disponible :",
+                error
+            );
+
+
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    // =================================================
+    // FALLBACK
+    // =================================================
+
+    ouvrirPDFMobile(
+        pdfBlob
+    );
+
+}
+
+
+// =====================================================
+// GÉNÉRATION PDF
 // =====================================================
 
 async function genererPDF(
@@ -1642,11 +1831,9 @@ async function genererPDF(
         "undefined"
     ) {
 
-        alert(
+        throw new Error(
             "La bibliothèque jsPDF n'est pas disponible."
         );
-
-        return;
 
     }
 
@@ -1660,11 +1847,9 @@ async function genererPDF(
         "undefined"
     ) {
 
-        alert(
+        throw new Error(
             "La bibliothèque html2canvas n'est pas disponible."
         );
-
-        return;
 
     }
 
@@ -1676,18 +1861,12 @@ async function genererPDF(
 
 
     // =================================================
-    // DÉTECTION MOBILE
+    // MOBILE
     // =================================================
 
     const estMobile =
-        /Android|iPhone|iPad|iPod/i.test(
-            navigator.userAgent
-        );
+        estAppareilMobile();
 
-
-    // =================================================
-    // SCALE
-    // =================================================
 
     const scaleCanvas =
         estMobile
@@ -1710,7 +1889,7 @@ async function genererPDF(
 
 
     // =================================================
-    // CONTENEUR PRINCIPAL
+    // CONTENEUR
     // =================================================
 
     const pdfContainer =
@@ -1718,24 +1897,6 @@ async function genererPDF(
             "div"
         );
 
-
-    // =================================================
-    // CORRECTION IMPORTANTE POUR MOBILE
-    // =================================================
-    //
-    // AVANT :
-    //
-    // position = absolute
-    // left = -10000px
-    //
-    // Sur certains navigateurs mobiles,
-    // html2canvas ne capturait pas correctement
-    // le contenu situé hors de l'écran.
-    //
-    // MAINTENANT :
-    //
-    // Le conteneur reste dans la zone capturable.
-    // =================================================
 
     pdfContainer.style.position =
         "fixed";
@@ -1810,7 +1971,7 @@ async function genererPDF(
 
 
     // =================================================
-    // CRÉATION IMAGE
+    // IMAGE
     // =================================================
 
     function creerImage(
@@ -1867,7 +2028,6 @@ async function genererPDF(
 
         }
 
-
         else if (
             position ===
             "right"
@@ -1878,12 +2038,10 @@ async function genererPDF(
 
         }
 
-
         else {
 
             img.style.left =
                 "50%";
-
 
             img.style.transform =
                 "translateX(-50%)";
@@ -1897,7 +2055,7 @@ async function genererPDF(
 
 
     // =================================================
-    // IMAGES
+    // TROIS IMAGES
     // =================================================
 
     header.appendChild(
@@ -1936,7 +2094,7 @@ async function genererPDF(
 
 
     // =================================================
-    // ESPACE ENTRE EN-TÊTE ET TEXTE
+    // ESPACE APRÈS EN-TÊTE
     // =================================================
 
     const espace =
@@ -1955,7 +2113,7 @@ async function genererPDF(
 
 
     // =================================================
-    // FONCTION PARAGRAPHE
+    // PARAGRAPHE
     // =================================================
 
     function ajouterParagraphe(
@@ -1973,10 +2131,6 @@ async function genererPDF(
             contenu;
 
 
-        // =================================================
-        // RTL
-        // =================================================
-
         p.style.direction =
             "rtl";
 
@@ -1985,18 +2139,10 @@ async function genererPDF(
             "plaintext";
 
 
-        // =================================================
-        // ALIGNEMENT
-        // =================================================
-
         p.style.textAlign =
             options.align ||
             "justify";
 
-
-        // =================================================
-        // POLICE
-        // =================================================
 
         p.style.fontFamily =
             '"' +
@@ -2004,18 +2150,10 @@ async function genererPDF(
             '", Arial, sans-serif';
 
 
-        // =================================================
-        // TAILLE
-        // =================================================
-
         p.style.fontSize =
             options.size ||
             "33px";
 
-
-        // =================================================
-        // GRAS
-        // =================================================
 
         p.style.fontWeight =
             options.bold
@@ -2023,18 +2161,10 @@ async function genererPDF(
                 : "normal";
 
 
-        // =================================================
-        // INTERLIGNE
-        // =================================================
-
         p.style.lineHeight =
             options.lineHeight ||
             "1.35";
 
-
-        // =================================================
-        // ESPACES
-        // =================================================
 
         p.style.margin =
             "0";
@@ -2044,10 +2174,6 @@ async function genererPDF(
             "0";
 
 
-        // =================================================
-        // LARGEUR
-        // =================================================
-
         p.style.width =
             "100%";
 
@@ -2055,10 +2181,6 @@ async function genererPDF(
         p.style.boxSizing =
             "border-box";
 
-
-        // =================================================
-        // TEXTE
-        // =================================================
 
         p.style.whiteSpace =
             "normal";
@@ -2180,7 +2302,7 @@ async function genererPDF(
 
 
     // =================================================
-    // TEXTE DE LA QUESTION
+    // TEXTE
     // =================================================
 
     const lines =
@@ -2257,7 +2379,7 @@ async function genererPDF(
 
 
     // =================================================
-    // FORMULE DE POLITESSE
+    // FORMULE
     // =================================================
 
     ajouterParagraphe(
@@ -2281,7 +2403,7 @@ async function genererPDF(
 
 
     // =================================================
-    // NOM DU DÉPUTÉ
+    // NOM
     // =================================================
 
     ajouterParagraphe(
@@ -2305,7 +2427,7 @@ async function genererPDF(
 
 
     // =================================================
-    // FONCTION DU DÉPUTÉ
+    // FONCTION
     // =================================================
 
     ajouterParagraphe(
@@ -2326,7 +2448,7 @@ async function genererPDF(
 
 
     // =================================================
-    // AJOUT AU DOM
+    // AJOUT DOM
     // =================================================
 
     document.body.appendChild(
@@ -2337,7 +2459,7 @@ async function genererPDF(
     try {
 
         // =================================================
-        // ATTENDRE LES IMAGES
+        // ATTENDRE IMAGES
         // =================================================
 
         const images =
@@ -2389,7 +2511,7 @@ async function genererPDF(
 
 
         // =================================================
-        // ATTENDRE LE RENDU
+        // ATTENDRE RENDU
         // =================================================
 
         await new Promise(
@@ -2436,7 +2558,7 @@ async function genererPDF(
 
 
         // =================================================
-        // CRÉATION PDF
+        // PDF
         // =================================================
 
         const pdf =
@@ -2457,10 +2579,6 @@ async function genererPDF(
             });
 
 
-        // =================================================
-        // A4
-        // =================================================
-
         const margin =
             10;
 
@@ -2472,10 +2590,6 @@ async function genererPDF(
         const contentHeight =
             277;
 
-
-        // =================================================
-        // RATIO
-        // =================================================
 
         const ratio =
             largeur /
@@ -2489,16 +2603,6 @@ async function genererPDF(
             );
 
 
-        console.log(
-            "Hauteur page CSS :",
-            hauteurPageCSS
-        );
-
-
-        // =================================================
-        // POSITION
-        // =================================================
-
         let position =
             0;
 
@@ -2508,7 +2612,7 @@ async function genererPDF(
 
 
         // =================================================
-        // GÉNÉRATION PAGE PAR PAGE
+        // PAGES
         // =================================================
 
         while (
@@ -2536,10 +2640,6 @@ async function genererPDF(
                     hauteurRestante
                 );
 
-
-            // =================================================
-            // CANVAS DE LA PAGE
-            // =================================================
 
             const pageCanvas =
                 await html2canvas(
@@ -2589,10 +2689,6 @@ async function genererPDF(
                 );
 
 
-            // =================================================
-            // IMAGE
-            // =================================================
-
             const imageData =
                 pageCanvas.toDataURL(
                     "image/jpeg",
@@ -2601,10 +2697,6 @@ async function genererPDF(
                         : 0.95
                 );
 
-
-            // =================================================
-            // AJOUT PAGE
-            // =================================================
 
             if (
                 pageNumber > 1
@@ -2615,18 +2707,10 @@ async function genererPDF(
             }
 
 
-            // =================================================
-            // HAUTEUR IMAGE
-            // =================================================
-
             const imageHeight =
                 hauteurPage /
                 ratio;
 
-
-            // =================================================
-            // AJOUT IMAGE AU PDF
-            // =================================================
 
             pdf.addImage(
 
@@ -2649,17 +2733,9 @@ async function genererPDF(
             );
 
 
-            // =================================================
-            // AVANCER
-            // =================================================
-
             position +=
                 hauteurPage;
 
-
-            // =================================================
-            // LIBÉRER MÉMOIRE
-            // =================================================
 
             pageCanvas.width =
                 1;
@@ -2668,10 +2744,6 @@ async function genererPDF(
             pageCanvas.height =
                 1;
 
-
-            // =================================================
-            // PAUSE MOBILE
-            // =================================================
 
             if (
                 estMobile
@@ -2684,7 +2756,7 @@ async function genererPDF(
 
                         setTimeout(
                             resolve,
-                            30
+                            50
                         );
 
                     }
@@ -2696,13 +2768,16 @@ async function genererPDF(
 
 
         // =================================================
-        // NOM DU FICHIER PDF
+        // NOM PDF
+        // =================================================
+        //
+        // On utilise un nom simple ASCII pour éviter
+        // les problèmes de compatibilité Safari/iOS.
+        //
         // =================================================
 
         const nomFichier =
-            "سؤال كتابي حول " +
-            subject +
-            ".pdf";
+            "question-ecrite.pdf";
 
 
         // =================================================
@@ -2715,11 +2790,38 @@ async function genererPDF(
             );
 
 
+        const pdfBlob =
+            new Blob(
+                [blob],
+                {
+                    type:
+                        "application/pdf"
+                }
+            );
+
+
         console.log(
             "PDF généré :",
-            blob.size,
+            pdfBlob.size,
             "octets"
         );
+
+
+        console.log(
+            "MIME :",
+            pdfBlob.type
+        );
+
+
+        if (
+            pdfBlob.size === 0
+        ) {
+
+            throw new Error(
+                "Le PDF généré est vide."
+            );
+
+        }
 
 
         // =================================================
@@ -2730,122 +2832,10 @@ async function genererPDF(
             estMobile
         ) {
 
-            // -------------------------------------------------
-            // CRÉER FICHIER
-            // -------------------------------------------------
-
-            const fichier =
-                new File(
-                    [blob],
-                    nomFichier,
-                    {
-
-                        type:
-                            "application/pdf"
-
-                    }
-                );
-
-
-            // -------------------------------------------------
-            // PARTAGE NATIF
-            // -------------------------------------------------
-
-            if (
-                navigator.share
-            ) {
-
-                try {
-
-                    let partagePossible =
-                        true;
-
-
-                    if (
-                        navigator.canShare
-                    ) {
-
-                        partagePossible =
-                            navigator.canShare(
-                                {
-
-                                    files:
-                                        [fichier]
-
-                                }
-                            );
-
-                    }
-
-
-                    // -------------------------------------------------
-                    // PARTAGE
-                    // -------------------------------------------------
-
-                    if (
-                        partagePossible
-                    ) {
-
-                        await navigator.share({
-
-                            files:
-                                [fichier],
-
-                            title:
-                                nomFichier
-
-                        });
-
-                    }
-
-
-                    else {
-
-                        telechargerPDFMobile(
-                            blob,
-                            nomFichier
-                        );
-
-                    }
-
-                }
-
-                catch (
-                    shareError
-                ) {
-
-                    console.log(
-                        "Partage PDF indisponible :",
-                        shareError
-                    );
-
-
-                    // -------------------------------------------------
-                    // FALLBACK
-                    // -------------------------------------------------
-
-                    telechargerPDFMobile(
-                        blob,
-                        nomFichier
-                    );
-
-                }
-
-            }
-
-
-            else {
-
-                // -------------------------------------------------
-                // MOBILE SANS SHARE
-                // -------------------------------------------------
-
-                telechargerPDFMobile(
-                    blob,
-                    nomFichier
-                );
-
-            }
+            await envoyerPDFMobile(
+                pdfBlob,
+                nomFichier
+            );
 
         }
 
@@ -2856,13 +2846,55 @@ async function genererPDF(
 
         else {
 
-            telechargerPDFMobile(
-                blob,
-                nomFichier
+            const url =
+                URL.createObjectURL(
+                    pdfBlob
+                );
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                nomFichier;
+
+
+            link.style.display =
+                "none";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            document.body.removeChild(
+                link
+            );
+
+
+            setTimeout(
+                function () {
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                },
+                30000
             );
 
         }
-
 
     }
 
@@ -2876,15 +2908,9 @@ async function genererPDF(
         );
 
 
-        alert(
-
-            "Erreur pendant la génération du PDF.\n\n" +
-            error.message
-
-        );
+        throw error;
 
     }
-
 
     finally {
 
