@@ -1538,8 +1538,23 @@ async function genererPDF(
 
     const {
         jsPDF
-    } =
-        window.jspdf;
+    } = window.jspdf;
+
+
+    // =================================================
+    // DÉTECTION MOBILE
+    // =================================================
+
+    const estMobile =
+        /Android|iPhone|iPad|iPod/i.test(
+            navigator.userAgent
+        );
+
+
+    // Sur mobile : scale 1
+    // Sur PC : scale 2
+    const scaleCanvas =
+        estMobile ? 1 : 2;
 
 
     // =================================================
@@ -1553,16 +1568,22 @@ async function genererPDF(
 
 
     pdfContainer.style.position =
-        "fixed";
+        "absolute";
 
     pdfContainer.style.left =
-        "0";
+        "-10000px";
 
     pdfContainer.style.top =
         "0";
 
+
+    // -------------------------------------------------
+    // LARGEUR
+    // -------------------------------------------------
+
     pdfContainer.style.width =
         "794px";
+
 
     pdfContainer.style.background =
         "#ffffff";
@@ -1570,19 +1591,24 @@ async function genererPDF(
     pdfContainer.style.color =
         "#000000";
 
+
     pdfContainer.style.padding =
         "10px 70px 70px 70px";
+
 
     pdfContainer.style.boxSizing =
         "border-box";
 
+
     pdfContainer.style.direction =
         "rtl";
+
 
     pdfContainer.style.fontFamily =
         '"' +
         POLICE_ARABE +
         '", Arial, sans-serif';
+
 
     pdfContainer.style.zIndex =
         "999999";
@@ -1629,16 +1655,20 @@ async function genererPDF(
         img.style.position =
             "absolute";
 
+
         img.style.top =
             "0";
+
 
         img.style.width =
             position === "center"
                 ? "200px"
                 : "120px";
 
+
         img.style.height =
             "120px";
+
 
         img.style.objectFit =
             "contain";
@@ -1735,7 +1765,7 @@ async function genererPDF(
 
 
     // =================================================
-    // PARAGRAPHE PDF
+    // PARAGRAPHE
     // =================================================
 
     function ajouterParagraphe(
@@ -1756,11 +1786,11 @@ async function genererPDF(
         p.style.direction =
             "rtl";
 
+
         p.style.unicodeBidi =
             "plaintext";
 
 
-        // JUSTIFICATION DU TEXTE
         p.style.textAlign =
             options.align ||
             "justify";
@@ -1791,12 +1821,14 @@ async function genererPDF(
         p.style.margin =
             "0";
 
+
         p.style.padding =
             "0";
 
 
         p.style.width =
             "100%";
+
 
         p.style.boxSizing =
             "border-box";
@@ -1829,7 +1861,6 @@ async function genererPDF(
         "السيد رئيس مجلس النواب المحترم.",
 
         {
-
             align:
                 "center",
 
@@ -1838,7 +1869,6 @@ async function genererPDF(
 
             bold:
                 true
-
         }
 
     );
@@ -1854,8 +1884,6 @@ async function genererPDF(
         subject,
 
         {
-
-            // JUSTIFIÉ
             align:
                 "justify",
 
@@ -1867,7 +1895,6 @@ async function genererPDF(
 
             lineHeight:
                 "1.35"
-
         }
 
     );
@@ -1882,7 +1909,6 @@ async function genererPDF(
         "سلام تام بوجود مولانا الإمام،",
 
         {
-
             align:
                 "center",
 
@@ -1891,7 +1917,6 @@ async function genererPDF(
 
             bold:
                 true
-
         }
 
     );
@@ -1907,8 +1932,6 @@ async function genererPDF(
         fonctionMinistre,
 
         {
-
-            // JUSTIFIÉ
             align:
                 "justify",
 
@@ -1917,32 +1940,27 @@ async function genererPDF(
 
             lineHeight:
                 "1.35"
-
         }
 
     );
 
 
     // =================================================
-    // TEXTE DE LA QUESTION
+    // TEXTE
     // =================================================
 
     const lines =
         text
             .split(/\r\n|\r|\n/)
             .map(
-                function (
-                    line
-                ) {
+                function (line) {
 
                     return line.trim();
 
                 }
             )
             .filter(
-                function (
-                    line
-                ) {
+                function (line) {
 
                     return line !== "";
 
@@ -1951,17 +1969,13 @@ async function genererPDF(
 
 
     lines.forEach(
-        function (
-            line
-        ) {
+        function (line) {
 
             ajouterParagraphe(
 
                 line,
 
                 {
-
-                    // JUSTIFIÉ
                     align:
                         "justify",
 
@@ -1970,7 +1984,6 @@ async function genererPDF(
 
                     lineHeight:
                         "1.35"
-
                 }
 
             );
@@ -1998,16 +2011,11 @@ async function genererPDF(
     );
 
 
-    // =================================================
-    // FORMULE DE POLITESSE
-    // =================================================
-
     ajouterParagraphe(
 
         "وتفضلوا بقبول فائق التقدير والاحترام",
 
         {
-
             align:
                 "center",
 
@@ -2016,22 +2024,16 @@ async function genererPDF(
 
             bold:
                 true
-
         }
 
     );
 
-
-    // =================================================
-    // NOM DU DÉPUTÉ
-    // =================================================
 
     ajouterParagraphe(
 
         nomDepute,
 
         {
-
             align:
                 "center",
 
@@ -2040,28 +2042,21 @@ async function genererPDF(
 
             bold:
                 true
-
         }
 
     );
 
-
-    // =================================================
-    // FONCTION DU DÉPUTÉ
-    // =================================================
 
     ajouterParagraphe(
 
         titreDepute,
 
         {
-
             align:
                 "center",
 
             size:
                 "33px"
-
         }
 
     );
@@ -2079,7 +2074,7 @@ async function genererPDF(
     try {
 
         // =================================================
-        // ATTENDRE LE CHARGEMENT DES IMAGES
+        // ATTENDRE LES IMAGES
         // =================================================
 
         const images =
@@ -2093,14 +2088,10 @@ async function genererPDF(
             Array.from(
                 images
             ).map(
-                function (
-                    img
-                ) {
+                function (img) {
 
                     return new Promise(
-                        function (
-                            resolve
-                        ) {
+                        function (resolve) {
 
                             if (
                                 img.complete &&
@@ -2116,6 +2107,7 @@ async function genererPDF(
 
                             img.onload =
                                 resolve;
+
 
                             img.onerror =
                                 resolve;
@@ -2134,9 +2126,7 @@ async function genererPDF(
         // =================================================
 
         await new Promise(
-            function (
-                resolve
-            ) {
+            function (resolve) {
 
                 requestAnimationFrame(
                     function () {
@@ -2168,12 +2158,16 @@ async function genererPDF(
             "PDF :",
             largeur,
             "x",
-            hauteur
+            hauteur,
+            "scale :",
+            scaleCanvas,
+            "mobile :",
+            estMobile
         );
 
 
         // =================================================
-        // HTML → CANVAS
+        // CANVAS
         // =================================================
 
         const canvas =
@@ -2182,7 +2176,7 @@ async function genererPDF(
                 {
 
                     scale:
-                        2,
+                        scaleCanvas,
 
                     backgroundColor:
                         "#ffffff",
@@ -2206,14 +2200,20 @@ async function genererPDF(
                         0,
 
                     scrollY:
-                        0
+                        0,
+
+                    windowWidth:
+                        largeur,
+
+                    windowHeight:
+                        hauteur
 
                 }
             );
 
 
         // =================================================
-        // CRÉATION PDF A4
+        // PDF A4
         // =================================================
 
         const pdf =
@@ -2232,14 +2232,6 @@ async function genererPDF(
                     true
 
             });
-
-
-        const pageWidth =
-            210;
-
-
-        const pageHeight =
-            297;
 
 
         const margin =
@@ -2275,7 +2267,7 @@ async function genererPDF(
 
 
         // =================================================
-        // DÉCOUPAGE PAGE PAR PAGE
+        // PAGES
         // =================================================
 
         while (
@@ -2289,6 +2281,7 @@ async function genererPDF(
             const height =
                 Math.min(
                     pixelsPerPage,
+
                     canvas.height -
                     position
                 );
@@ -2348,7 +2341,9 @@ async function genererPDF(
             const imageData =
                 pageCanvas.toDataURL(
                     "image/jpeg",
-                    0.95
+                    estMobile
+                        ? 0.85
+                        : 0.95
                 );
 
 
@@ -2390,20 +2385,120 @@ async function genererPDF(
             position +=
                 height;
 
+
+            // -------------------------------------------------
+            // LIBÉRER LA MÉMOIRE SUR MOBILE
+            // -------------------------------------------------
+
+            pageCanvas.width = 1;
+
+            pageCanvas.height = 1;
+
         }
 
 
         // =================================================
-        // SAUVEGARDE
+        // NOM DU FICHIER
         // =================================================
 
-        pdf.save(
-
+        const nomFichier =
             "سؤال كتابي حول " +
             subject +
-            ".pdf"
+            ".pdf";
 
-        );
+
+        // =================================================
+        // TÉLÉCHARGEMENT
+        // =================================================
+
+        const blob =
+            pdf.output(
+                "blob"
+            );
+
+
+        const fichier =
+            new File(
+                [blob],
+                nomFichier,
+                {
+                    type:
+                        "application/pdf"
+                }
+            );
+
+
+        // =================================================
+        // MOBILE : PARTAGE / ENREGISTREMENT
+        // =================================================
+
+        if (
+            estMobile &&
+            navigator.share
+        ) {
+
+            try {
+
+                if (
+                    !navigator.canShare ||
+                    navigator.canShare({
+                        files: [fichier]
+                    })
+                ) {
+
+                    await navigator.share({
+
+                        files:
+                            [fichier],
+
+                        title:
+                            "Question écrite",
+
+                        text:
+                            "Question écrite"
+
+                    });
+
+                }
+
+                else {
+
+                    telechargerPDFMobile(
+                        blob,
+                        nomFichier
+                    );
+
+                }
+
+            }
+
+            catch (shareError) {
+
+                console.log(
+                    "Partage annulé ou indisponible :",
+                    shareError
+                );
+
+
+                telechargerPDFMobile(
+                    blob,
+                    nomFichier
+                );
+
+            }
+
+        }
+
+        else {
+
+            // PC
+            telechargerPDFMobile(
+                blob,
+                nomFichier
+            );
+
+        }
+
 
     }
 
