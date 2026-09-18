@@ -1,4 +1,3 @@
-
 // =====================================================
 // CHARGEMENT DE LA LIBRAIRIE DOCX
 // =====================================================
@@ -18,7 +17,7 @@ docxScript.onload = function () {
     if (typeof window.docx === "undefined") {
 
         console.error(
-            "La librairie DOCX est chargée mais window.docx est undefined."
+            "window.docx est undefined."
         );
 
         alert(
@@ -46,15 +45,17 @@ document.head.appendChild(docxScript);
 
 
 // =====================================================
+// POLICE UTILISÉE DANS WORD
+// =====================================================
+
+const POLICE_ARABE = "Traditional Arabic";
+
+
+// =====================================================
 // CHARGER UNE IMAGE
 // =====================================================
 
 async function chargerImage(chemin) {
-
-    console.log(
-        "Chargement de l'image :",
-        chemin
-    );
 
     const imageUrl =
         new URL(
@@ -63,7 +64,7 @@ async function chargerImage(chemin) {
         ).href;
 
     console.log(
-        "URL complète de l'image :",
+        "Chargement image :",
         imageUrl
     );
 
@@ -83,26 +84,18 @@ async function chargerImage(chemin) {
     const buffer =
         await response.arrayBuffer();
 
-    console.log(
-        "Image chargée avec succès :",
-        imageUrl,
-        buffer.byteLength,
-        "octets"
-    );
-
     return new Uint8Array(buffer);
 }
 
 
 // =====================================================
-// TÉLÉCHARGER LE FICHIER WORD
+// TÉLÉCHARGER WORD
 // =====================================================
 
-async function telechargerWord(blob, fileName) {
-
-    console.log(
-        "Préparation du téléchargement Word..."
-    );
+async function telechargerWord(
+    blob,
+    fileName
+) {
 
     const wordFile =
         new File(
@@ -118,11 +111,6 @@ async function telechargerWord(blob, fileName) {
         /Android|iPhone|iPad|iPod/i.test(
             navigator.userAgent
         );
-
-    console.log(
-        "Appareil mobile :",
-        isMobile
-    );
 
     if (
         isMobile &&
@@ -143,22 +131,17 @@ async function telechargerWord(blob, fileName) {
 
                 text:
                     "Question écrite"
+
             };
 
             if (
-                navigator.canShare(shareData)
+                navigator.canShare(
+                    shareData
+                )
             ) {
-
-                console.log(
-                    "Partage du fichier Word sur mobile..."
-                );
 
                 await navigator.share(
                     shareData
-                );
-
-                console.log(
-                    "Fichier Word partagé avec succès."
                 );
 
                 return;
@@ -173,10 +156,6 @@ async function telechargerWord(blob, fileName) {
                 "AbortError"
             ) {
 
-                console.log(
-                    "Partage annulé par l'utilisateur."
-                );
-
                 return;
             }
 
@@ -187,17 +166,18 @@ async function telechargerWord(blob, fileName) {
         }
     }
 
-    console.log(
-        "Utilisation du téléchargement classique..."
-    );
 
     const url =
         URL.createObjectURL(
             blob
         );
 
+
     const link =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
+
 
     link.href =
         url;
@@ -207,6 +187,7 @@ async function telechargerWord(blob, fileName) {
 
     link.style.display =
         "none";
+
 
     document.body.appendChild(
         link
@@ -218,6 +199,7 @@ async function telechargerWord(blob, fileName) {
         link
     );
 
+
     setTimeout(
         function () {
 
@@ -228,176 +210,279 @@ async function telechargerWord(blob, fileName) {
         },
         10000
     );
-
-    console.log(
-        "Téléchargement Word terminé."
-    );
 }
 
 
 // =====================================================
-// INITIALISATION DE L'APPLICATION
+// DONNÉES
+// =====================================================
+
+const deputes = [
+
+    {
+        nom:
+            "السيدة النائبة عزيزة بوجريدة"
+    },
+
+    {
+        nom:
+            "السيد النائب نبيل الدخش"
+    }
+
+];
+
+
+const ministres = [
+
+    {
+        fonction:
+            "السيد وزير الداخلية"
+    },
+
+    {
+        fonction:
+            "السيد وزير الشؤون الخارجية والتعاون الإفريقي والمغاربة المقيمين بالخارج"
+    },
+
+    {
+        fonction:
+            "السيد وزير العدل"
+    },
+
+    {
+        fonction:
+            "السيد وزير الأوقاف والشؤون الإسلامية"
+    },
+
+    {
+        fonction:
+            "السيدة وزيرة الاقتصاد والمالية"
+    },
+
+    {
+        fonction:
+            "السيد وزير التجهيز والماء"
+    },
+
+    {
+        fonction:
+            "السيد وزير التربية الوطنية والتعليم الأولي والرياضة"
+    },
+
+    {
+        fonction:
+            "السيد وزير الصحة والحماية الاجتماعية"
+    },
+
+    {
+        fonction:
+            "السيدة وزيرة إعداد التراب الوطني والتعمير والإسكان وسياسة المدينة"
+    },
+
+    {
+        fonction:
+            "السيد وزير الفلاحة والصيد البحري والتنمية القروية والمياه والغابات"
+    },
+
+    {
+        fonction:
+            "السيد وزير الإدماج الاقتصادي والمقاولة الصغرى والتشغيل والكفاءات"
+    },
+
+    {
+        fonction:
+            "السيد وزير الصناعة والتجارة"
+    },
+
+    {
+        fonction:
+            "السيدة وزيرة السياحة والصناعة التقليدية والاقتصاد الاجتماعي والتضامني"
+    },
+
+    {
+        fonction:
+            "السيد وزير التعليم العالي والبحث العلمي والابتكار"
+    },
+
+    {
+        fonction:
+            "السيدة وزيرة الانتقال الطاقي والتنمية المستدامة"
+    },
+
+    {
+        fonction:
+            "السيد وزير النقل واللوجيستيك"
+    },
+
+    {
+        fonction:
+            "السيد وزير الشباب والثقافة والتواصل"
+    },
+
+    {
+        fonction:
+            "السيدة وزيرة التضامن والإدماج الاجتماعي والأسرة"
+    },
+
+    {
+        fonction:
+            "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بإدارة الدفاع الوطني"
+    },
+
+    {
+        fonction:
+            "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بالاستثمار والتقائية وتقييم السياسات العمومية"
+    },
+
+    {
+        fonction:
+            "السيد الوزير المنتدب لدى وزيرة الاقتصاد والمالية المكلف بالميزانية"
+    },
+
+    {
+        fonction:
+            "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بالعلاقات مع البرلمان، الناطق الرسمي باسم الحكومة"
+    },
+
+    {
+        fonction:
+            "السيدة الوزيرة المنتدبة لدى رئيس الحكومة المكلفة بالانتقال الرقمي وإصلاح الإدارة"
+    },
+
+    {
+        fonction:
+            "السيدة كاتبة الدولة المكلفة بالصيد البحري"
+    },
+
+    {
+        fonction:
+            "السيد كاتب الدولة المكلف بالتجارة الخارجية"
+    },
+
+    {
+        fonction:
+            "السيد كاتب الدولة المكلف بالإسكان"
+    },
+
+    {
+        fonction:
+            "السيد كاتب الدولة المكلف بالشغل"
+    },
+
+    {
+        fonction:
+            "السيد كاتب الدولة المكلف بالصناعة التقليدية والاقتصاد الاجتماعي والتضامني"
+    },
+
+    {
+        fonction:
+            "السيد كاتب الدولة المكلف بالإدماج الاجتماعي"
+    }
+
+];
+
+
+// =====================================================
+// TRAITEMENT DU DÉPUTÉ
+// =====================================================
+
+function traiterDepute(
+    depute
+) {
+
+    const nomOriginal =
+        depute.nom.trim();
+
+
+    let titreDepute;
+
+
+    if (
+        nomOriginal.startsWith(
+            "السيد النائب"
+        )
+    ) {
+
+        titreDepute =
+            "نائب برلماني";
+
+    }
+
+    else if (
+        nomOriginal.startsWith(
+            "السيدة النائبة"
+        )
+    ) {
+
+        titreDepute =
+            "نائبة برلمانية";
+
+    }
+
+    else {
+
+        titreDepute =
+            "نائب برلماني";
+
+    }
+
+
+    const nomDepute =
+        nomOriginal
+
+            .replace(
+                /^السيد النائب\s*/u,
+                ""
+            )
+
+            .replace(
+                /^السيدة النائبة\s*/u,
+                ""
+            );
+
+
+    return {
+
+        nomDepute:
+            nomDepute,
+
+        titreDepute:
+            titreDepute
+
+    };
+
+}
+
+
+// =====================================================
+// INITIALISATION
 // =====================================================
 
 function initialiserApplication() {
-
-    console.log(
-        "Initialisation de l'application..."
-    );
-
-    const deputes = [
-
-        {
-            nom: "السيدة النائبة عزيزة بوجريدة"
-        },
-
-        {
-            nom: "السيد النائب نبيل الدخش"
-        }
-
-    ];
-
-
-    const ministres = [
-
-        {
-            fonction: "السيد وزير الداخلية"
-        },
-
-        {
-            fonction: "السيد وزير الشؤون الخارجية والتعاون الإفريقي والمغاربة المقيمين بالخارج"
-        },
-
-        {
-            fonction: "السيد وزير العدل"
-        },
-
-        {
-            fonction: "السيد وزير الأوقاف والشؤون الإسلامية"
-        },
-
-        {
-            fonction: "السيدة وزيرة الاقتصاد والمالية"
-        },
-
-        {
-            fonction: "السيد وزير التجهيز والماء"
-        },
-
-        {
-            fonction: "السيد وزير التربية الوطنية والتعليم الأولي والرياضة"
-        },
-
-        {
-            fonction: "السيد وزير الصحة والحماية الاجتماعية"
-        },
-
-        {
-            fonction: "السيدة وزيرة إعداد التراب الوطني والتعمير والإسكان وسياسة المدينة"
-        },
-
-        {
-            fonction: "السيد وزير الفلاحة والصيد البحري والتنمية القروية والمياه والغابات"
-        },
-
-        {
-            fonction: "السيد وزير الإدماج الاقتصادي والمقاولة الصغرى والتشغيل والكفاءات"
-        },
-
-        {
-            fonction: "السيد وزير الصناعة والتجارة"
-        },
-
-        {
-            fonction: "السيدة وزيرة السياحة والصناعة التقليدية والاقتصاد الاجتماعي والتضامني"
-        },
-
-        {
-            fonction: "السيد وزير التعليم العالي والبحث العلمي والابتكار"
-        },
-
-        {
-            fonction: "السيدة وزيرة الانتقال الطاقي والتنمية المستدامة"
-        },
-
-        {
-            fonction: "السيد وزير النقل واللوجيستيك"
-        },
-
-        {
-            fonction: "السيد وزير الشباب والثقافة والتواصل"
-        },
-
-        {
-            fonction: "السيدة وزيرة التضامن والإدماج الاجتماعي والأسرة"
-        },
-
-        {
-            fonction: "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بإدارة الدفاع الوطني"
-        },
-
-        {
-            fonction: "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بالاستثمار والتقائية وتقييم السياسات العمومية"
-        },
-
-        {
-            fonction: "السيد الوزير المنتدب لدى وزيرة الاقتصاد والمالية المكلف بالميزانية"
-        },
-
-        {
-            fonction: "السيد الوزير المنتدب لدى رئيس الحكومة المكلف بالعلاقات مع البرلمان، الناطق الرسمي باسم الحكومة"
-        },
-
-        {
-            fonction: "السيدة الوزيرة المنتدبة لدى رئيس الحكومة المكلفة بالانتقال الرقمي وإصلاح الإدارة"
-        },
-
-        {
-            fonction: "السيدة كاتبة الدولة المكلفة بالصيد البحري"
-        },
-
-        {
-            fonction: "السيد كاتب الدولة المكلف بالتجارة الخارجية"
-        },
-
-        {
-            fonction: "السيد كاتب الدولة المكلف بالإسكان"
-        },
-
-        {
-            fonction: "السيد كاتب الدولة المكلف بالشغل"
-        },
-
-        {
-            fonction: "السيد كاتب الدولة المكلف بالصناعة التقليدية والاقتصاد الاجتماعي والتضامني"
-        },
-
-        {
-            fonction: "السيد كاتب الدولة المكلف بالإدماج الاجتماعي"
-        }
-
-    ];
-
 
     const deputeSelect =
         document.getElementById(
             "depute_id"
         );
 
+
     const ministreSelect =
         document.getElementById(
             "ministre_id"
         );
+
 
     const subjectInput =
         document.getElementById(
             "subject"
         );
 
+
     const textInput =
         document.getElementById(
             "text"
         );
+
 
     const generateButton =
         document.getElementById(
@@ -405,55 +490,25 @@ function initialiserApplication() {
         );
 
 
-    if (!deputeSelect) {
+    if (
+        !deputeSelect ||
+        !ministreSelect ||
+        !subjectInput ||
+        !textInput ||
+        !generateButton
+    ) {
 
         console.error(
-            "L'élément #depute_id est introuvable."
+            "Un ou plusieurs éléments HTML sont introuvables."
         );
 
         return;
     }
 
 
-    if (!ministreSelect) {
-
-        console.error(
-            "L'élément #ministre_id est introuvable."
-        );
-
-        return;
-    }
-
-
-    if (!subjectInput) {
-
-        console.error(
-            "L'élément #subject est introuvable."
-        );
-
-        return;
-    }
-
-
-    if (!textInput) {
-
-        console.error(
-            "L'élément #text est introuvable."
-        );
-
-        return;
-    }
-
-
-    if (!generateButton) {
-
-        console.error(
-            "L'élément #generateWord est introuvable."
-        );
-
-        return;
-    }
-
+    // =================================================
+    // REMPLIR DÉPUTÉS
+    // =================================================
 
     deputes.forEach(
         function (
@@ -480,6 +535,10 @@ function initialiserApplication() {
     );
 
 
+    // =================================================
+    // REMPLIR MINISTRES
+    // =================================================
+
     ministres.forEach(
         function (
             ministre,
@@ -505,32 +564,25 @@ function initialiserApplication() {
     );
 
 
-    console.log(
-        "Liste des députés chargée."
-    );
-
-    console.log(
-        "Liste des ministres chargée."
-    );
-
+    // =================================================
+    // BOUTON
+    // =================================================
 
     generateButton.addEventListener(
         "click",
         async function () {
 
-            console.log(
-                "Bouton Générer Word cliqué."
-            );
-
-
             const subject =
                 subjectInput.value.trim();
+
 
             const text =
                 textInput.value.trim();
 
+
             const deputeIndex =
                 deputeSelect.value;
+
 
             const ministreIndex =
                 ministreSelect.value;
@@ -586,84 +638,38 @@ function initialiserApplication() {
 
             const depute =
                 deputes[
-                    deputeIndex
+                    Number(
+                        deputeIndex
+                    )
                 ];
+
 
             const ministre =
                 ministres[
-                    ministreIndex
+                    Number(
+                        ministreIndex
+                    )
                 ];
+
+
+            const {
+
+                nomDepute,
+                titreDepute
+
+            } =
+                traiterDepute(
+                    depute
+                );
+
 
             const fonctionMinistre =
                 ministre.fonction;
 
 
-            const nomDeputeOriginal =
-                depute.nom.trim();
-
-
-            let titreDepute;
-
-
-            if (
-                nomDeputeOriginal.startsWith(
-                    "السيد النائب"
-                )
-            ) {
-
-                titreDepute =
-                    "نائب برلماني";
-
-            }
-
-            else if (
-                nomDeputeOriginal.startsWith(
-                    "السيدة النائبة"
-                )
-            ) {
-
-                titreDepute =
-                    "نائبة برلمانية";
-
-            }
-
-            else {
-
-                titreDepute =
-                    "نائب برلماني";
-
-            }
-
-
-            const nomDepute =
-                nomDeputeOriginal
-
-                    .replace(
-                        /^السيد النائب\s*/u,
-                        ""
-                    )
-
-                    .replace(
-                        /^السيدة النائبة\s*/u,
-                        ""
-                    );
-
-
-            console.log(
-                "Député :",
-                nomDepute
-            );
-
-            console.log(
-                "Fonction :",
-                titreDepute
-            );
-
-            console.log(
-                "Ministre choisi :",
-                fonctionMinistre
-            );
-
+            // =================================================
+            // LIBRAIRIE DOCX
+            // =================================================
 
             const {
 
@@ -676,8 +682,13 @@ function initialiserApplication() {
                 HorizontalPositionRelativeFrom,
                 VerticalPositionRelativeFrom
 
-            } = window.docx;
+            } =
+                window.docx;
 
+
+            // =================================================
+            // CHARGEMENT DES IMAGES
+            // =================================================
 
             let royaumeImage;
             let symboleImage;
@@ -691,10 +702,12 @@ function initialiserApplication() {
                         "images/royaumem.jpeg"
                     );
 
+
                 symboleImage =
                     await chargerImage(
                         "images/symbole.jpeg"
                     );
+
 
                 symboleamazighImage =
                     await chargerImage(
@@ -706,7 +719,6 @@ function initialiserApplication() {
             catch (error) {
 
                 console.error(
-                    "Erreur lors du chargement des images :",
                     error
                 );
 
@@ -722,9 +734,114 @@ function initialiserApplication() {
             const children = [];
 
 
-            // =====================================================
+            // =================================================
+            // FONCTION TEXT RUN RTL
+            // =================================================
+            //
+            // C'EST LA CORRECTION PRINCIPALE.
+            //
+            // rightToLeft:true
+            // = w:rtl dans le DOCX
+            //
+            // =================================================
+
+            function runArabe(
+                texte,
+                options = {}
+            ) {
+
+                return new TextRun({
+
+                    text:
+                        texte,
+
+                    font:
+                        options.font ||
+                        POLICE_ARABE,
+
+                    size:
+                        options.size ||
+                        36,
+
+                    bold:
+                        options.bold ||
+                        false,
+
+                    rightToLeft:
+                        true
+
+                });
+
+            }
+
+
+            // =================================================
+            // PARAGRAPHE RTL
+            // =================================================
+
+            function paragrapheArabe(
+                texte,
+                options = {}
+            ) {
+
+                return new Paragraph({
+
+                    alignment:
+                        options.alignment ||
+                        AlignmentType.JUSTIFIED,
+
+                    bidirectional:
+                        true,
+
+                    keepNext:
+                        options.keepNext ||
+                        false,
+
+                    keepLines:
+                        options.keepLines ||
+                        false,
+
+                    spacing: {
+
+                        before:
+                            options.before ||
+                            0,
+
+                        after:
+                            options.after ||
+                            0,
+
+                        line:
+                            options.line ||
+                            276
+
+                    },
+
+                    children: [
+
+                        runArabe(
+                            texte,
+                            {
+                                size:
+                                    options.size ||
+                                    36,
+
+                                bold:
+                                    options.bold ||
+                                    false
+                            }
+                        )
+
+                    ]
+
+                });
+
+            }
+
+
+            // =================================================
             // IMAGE GAUCHE
-            // =====================================================
+            // =================================================
 
             const symboleamazighImageRun =
                 new ImageRun({
@@ -781,9 +898,9 @@ function initialiserApplication() {
                 });
 
 
-            // =====================================================
+            // =================================================
             // IMAGE DROITE
-            // =====================================================
+            // =================================================
 
             const symboleImageRun =
                 new ImageRun({
@@ -840,9 +957,9 @@ function initialiserApplication() {
                 });
 
 
-            // =====================================================
+            // =================================================
             // IMAGE CENTRALE
-            // =====================================================
+            // =================================================
 
             const royaumeImageRun =
                 new ImageRun({
@@ -899,9 +1016,9 @@ function initialiserApplication() {
                 });
 
 
-            // =====================================================
-            // PARAGRAPHE DES 3 IMAGES
-            // =====================================================
+            // =================================================
+            // EN-TÊTE
+            // =================================================
 
             children.push(
 
@@ -932,292 +1049,196 @@ function initialiserApplication() {
             );
 
 
-            // =====================================================
-            // ESPACE ENTRE L'EN-TÊTE ET LE RESTE DU TEXTE
-            // =====================================================
+            // =================================================
+            // DESTINATAIRE
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.CENTER,
+                    "السيد رئيس مجلس النواب المحترم.",
 
-                    bidirectional:
-                        true,
+                    {
 
-                    spacing: {
+                        alignment:
+                            AlignmentType.CENTER,
+
+                        size:
+                            44,
+
+                        bold:
+                            true,
 
                         before:
                             2400,
 
-                        after:
-                            0,
-
                         line:
                             276
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                "السيد رئيس مجلس النواب المحترم.",
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                44,
-
-                            bold:
-                                true
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
+            // =================================================
             // SUJET
-            // =====================================================
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.JUSTIFIED,
+                    "الموضوع: سؤال كتابي حول " +
+                    subject,
 
-                    bidirectional:
-                        true,
+                    {
 
-                    spacing: {
+                        alignment:
+                            AlignmentType.JUSTIFIED,
 
-                        before:
-                            0,
+                        size:
+                            40,
 
-                        after:
-                            0,
+                        bold:
+                            true,
 
                         line:
                             276
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                "الموضوع: سؤال كتابي حول " +
-                                subject,
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                40,
-
-                            bold:
-                                true
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
+            // =================================================
             // SALUTATION
-            // =====================================================
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.CENTER,
+                    "سلام تام بوجود مولانا الإمام،",
 
-                    bidirectional:
-                        true,
+                    {
 
-                    spacing: {
+                        alignment:
+                            AlignmentType.CENTER,
 
-                        before:
-                            0,
+                        size:
+                            44,
 
-                        after:
-                            0,
+                        bold:
+                            true,
 
                         line:
                             276
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                "سلام تام بوجود مولانا الإمام،",
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                44,
-
-                            bold:
-                                true
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
+            // =================================================
             // INTRODUCTION + MINISTRE
-            // =====================================================
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.JUSTIFIED,
+                    "طبقا لمقتضيات النظام الداخلي لمجلس النواب، يشرفني أن ألتمس من سيادتكم رفع السؤال الكتابي التالي إلى " +
+                    fonctionMinistre,
 
-                    bidirectional:
-                        true,
+                    {
 
-                    spacing: {
+                        alignment:
+                            AlignmentType.JUSTIFIED,
 
-                        before:
-                            0,
-
-                        after:
-                            0,
+                        size:
+                            36,
 
                         line:
                             240
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                "طبقا لمقتضيات النظام الداخلي لمجلس النواب، يشرفني أن ألتمس من سيادتكم رفع السؤال الكتابي التالي إلى " +
-                                fonctionMinistre,
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                36
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
-            // TEXTE DE LA QUESTION
-            // =====================================================
+            // =================================================
+            // TEXTE
+            // =================================================
 
             const lines =
                 text
                     .split(/\r\n|\r|\n/)
-                    .map(function (line) {
-                        return line.trim();
-                    })
-                    .filter(function (line) {
-                        return line !== "";
-                    });
+                    .map(
+                        function (
+                            line
+                        ) {
 
+                            return line.trim();
 
-            // =====================================================
-            // AJOUT DES PARAGRAPHES DU TEXTE
-            // =====================================================
+                        }
+                    )
+                    .filter(
+                        function (
+                            line
+                        ) {
+
+                            return line !== "";
+
+                        }
+                    );
+
 
             lines.forEach(
-                function (line, index) {
+                function (
+                    line,
+                    index
+                ) {
 
                     const estDerniereLigne =
-                        index === lines.length - 1;
+                        index ===
+                        lines.length - 1;
 
 
                     children.push(
 
-                        new Paragraph({
+                        paragrapheArabe(
 
-                            alignment:
-                                AlignmentType.JUSTIFIED,
+                            line,
 
-                            bidirectional:
-                                true,
+                            {
 
-                            // =================================================
-                            // IMPORTANT :
-                            // Le dernier paragraphe du texte reste avec
-                            // la formule de politesse.
-                            // =================================================
+                                alignment:
+                                    AlignmentType.JUSTIFIED,
 
-                            keepNext:
-                                estDerniereLigne,
-
-                            keepLines:
-                                true,
-
-                            spacing: {
-
-                                before:
-                                    0,
-
-                                after:
-                                    0,
+                                size:
+                                    36,
 
                                 line:
-                                    276
+                                    276,
 
-                            },
+                                keepNext:
+                                    estDerniereLigne,
 
-                            children: [
+                                keepLines:
+                                    true
 
-                                new TextRun({
+                            }
 
-                                    text:
-                                        line,
-
-                                    font:
-                                        "Sakkal Majalla",
-
-                                    size:
-                                        36
-
-                                })
-
-                            ]
-
-                        })
+                        )
 
                     );
 
@@ -1225,185 +1246,114 @@ function initialiserApplication() {
             );
 
 
-            // =====================================================
-            // SIGNATURE BLOCK
-            // =====================================================
-
-            // =====================================================
+            // =================================================
             // FORMULE DE POLITESSE
-            //
-            // keepNext = garder avec le nom du député
-            // =====================================================
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.CENTER,
+                    "وتفضلوا بقبول فائق التقدير والاحترام",
 
-                    bidirectional:
-                        true,
+                    {
 
-                    keepNext:
-                        true,
+                        alignment:
+                            AlignmentType.CENTER,
 
-                    keepLines:
-                        true,
+                        size:
+                            44,
 
-                    spacing: {
+                        bold:
+                            true,
 
-                        before:
-                            0,
+                        keepNext:
+                            true,
 
-                        after:
-                            0,
+                        keepLines:
+                            true,
 
                         line:
                             240
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                "وتفضلوا بقبول فائق التقدير والاحترام",
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                44,
-
-                            bold:
-                                true
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
-            // NOM DU DÉPUTÉ
-            //
-            // keepNext = garder avec la fonction du député
-            // =====================================================
+            // =================================================
+            // NOM
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.CENTER,
+                    nomDepute,
 
-                    bidirectional:
-                        true,
+                    {
 
-                    keepNext:
-                        true,
+                        alignment:
+                            AlignmentType.CENTER,
 
-                    keepLines:
-                        true,
+                        size:
+                            44,
 
-                    spacing: {
+                        bold:
+                            true,
 
-                        before:
-                            0,
+                        keepNext:
+                            true,
 
-                        after:
-                            0,
+                        keepLines:
+                            true,
 
                         line:
                             240
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                nomDepute,
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                44,
-
-                            bold:
-                                true
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
-            // FONCTION DU DÉPUTÉ
-            // =====================================================
+            // =================================================
+            // FONCTION
+            // =================================================
 
             children.push(
 
-                new Paragraph({
+                paragrapheArabe(
 
-                    alignment:
-                        AlignmentType.CENTER,
+                    titreDepute,
 
-                    bidirectional:
-                        true,
+                    {
 
-                    keepLines:
-                        true,
+                        alignment:
+                            AlignmentType.CENTER,
 
-                    spacing: {
+                        size:
+                            36,
 
-                        before:
-                            0,
-
-                        after:
-                            0,
+                        keepLines:
+                            true,
 
                         line:
                             240
 
-                    },
+                    }
 
-                    children: [
-
-                        new TextRun({
-
-                            text:
-                                titreDepute,
-
-                            font:
-                                "Sakkal Majalla",
-
-                            size:
-                                36
-
-                        })
-
-                    ]
-
-                })
+                )
 
             );
 
 
-            // =====================================================
+            // =================================================
             // DOCUMENT WORD
-            // =====================================================
+            // =================================================
 
             const wordDocument =
                 new Document({
@@ -1446,50 +1396,48 @@ function initialiserApplication() {
                 });
 
 
+            // =================================================
+            // NOM DU FICHIER
+            // =================================================
+
             const fileName =
                 "سؤال كتابي حول " +
                 subject +
                 ".docx";
 
 
-            try {
+            // =================================================
+            // GÉNÉRATION WORD
+            // =================================================
 
-                console.log(
-                    "Génération du fichier Word..."
-                );
+            try {
 
                 const blob =
                     await Packer.toBlob(
                         wordDocument
                     );
 
-                console.log(
-                    "Blob Word généré :",
-                    blob.size,
-                    "octets"
-                );
 
                 const wordBlob =
                     new Blob(
                         [blob],
                         {
+
                             type:
                                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
                         }
                     );
 
-                console.log(
-                    "Type du fichier :",
-                    wordBlob.type
-                );
 
                 await telechargerWord(
                     wordBlob,
                     fileName
                 );
 
+
                 console.log(
-                    "Fichier Word généré avec succès."
+                    "Word généré avec succès."
                 );
 
             }
@@ -1497,17 +1445,995 @@ function initialiserApplication() {
             catch (error) {
 
                 console.error(
-                    "Erreur pendant la génération Word :",
+                    "Erreur Word :",
                     error
                 );
 
+
                 alert(
-                    "Une erreur est survenue lors de la génération du fichier Word.\n\n" +
+                    "Erreur pendant la génération Word.\n\n" +
                     error.message
                 );
+
+
+                return;
+
+            }
+
+
+            // =================================================
+            // GÉNÉRER PDF DIRECT
+            // =================================================
+
+            try {
+
+                await genererPDF(
+
+                    subject,
+
+                    text,
+
+                    fonctionMinistre,
+
+                    nomDepute,
+
+                    titreDepute
+
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Erreur PDF :",
+                    error
+                );
+
             }
 
         }
     );
+
+}
+
+
+// =====================================================
+// GÉNÉRATION PDF DIRECT
+// =====================================================
+
+async function genererPDF(
+    subject,
+    text,
+    fonctionMinistre,
+    nomDepute,
+    titreDepute
+) {
+
+    if (
+        typeof window.jspdf ===
+        "undefined"
+    ) {
+
+        alert(
+            "La bibliothèque jsPDF n'est pas disponible."
+        );
+
+        return;
+    }
+
+
+    if (
+        typeof window.html2canvas ===
+        "undefined"
+    ) {
+
+        alert(
+            "La bibliothèque html2canvas n'est pas disponible."
+        );
+
+        return;
+    }
+
+
+    const {
+        jsPDF
+    } =
+        window.jspdf;
+
+
+    // =================================================
+    // CONTENEUR
+    // =================================================
+
+    const pdfContainer =
+        document.createElement(
+            "div"
+        );
+
+
+    pdfContainer.style.position =
+        "fixed";
+
+    pdfContainer.style.left =
+        "0";
+
+    pdfContainer.style.top =
+        "0";
+
+    pdfContainer.style.width =
+        "794px";
+
+    pdfContainer.style.background =
+        "#ffffff";
+
+    pdfContainer.style.color =
+        "#000000";
+
+    pdfContainer.style.padding =
+        "10px 70px 70px 70px";
+
+    pdfContainer.style.boxSizing =
+        "border-box";
+
+    pdfContainer.style.direction =
+        "rtl";
+
+    pdfContainer.style.fontFamily =
+        '"' +
+        POLICE_ARABE +
+        '", Arial, sans-serif';
+
+    pdfContainer.style.zIndex =
+        "999999";
+
+
+    // =================================================
+    // EN-TÊTE
+    // =================================================
+
+    const header =
+        document.createElement(
+            "div"
+        );
+
+
+    header.style.position =
+        "relative";
+
+    header.style.width =
+        "100%";
+
+    header.style.height =
+        "120px";
+
+
+    function creerImage(
+        src,
+        position
+    ) {
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+
+        img.src =
+            new URL(
+                src,
+                document.baseURI
+            ).href;
+
+
+        img.style.position =
+            "absolute";
+
+        img.style.top =
+            "0";
+
+        img.style.width =
+            position === "center"
+                ? "200px"
+                : "120px";
+
+        img.style.height =
+            "120px";
+
+        img.style.objectFit =
+            "contain";
+
+
+        if (
+            position ===
+            "left"
+        ) {
+
+            img.style.left =
+                "0";
+
+        }
+
+        else if (
+            position ===
+            "right"
+        ) {
+
+            img.style.right =
+                "0";
+
+        }
+
+        else {
+
+            img.style.left =
+                "50%";
+
+            img.style.transform =
+                "translateX(-50%)";
+
+        }
+
+
+        return img;
+
+    }
+
+
+    header.appendChild(
+
+        creerImage(
+            "images/symboleamazigh.jpeg",
+            "left"
+        )
+
+    );
+
+
+    header.appendChild(
+
+        creerImage(
+            "images/royaumem.jpeg",
+            "center"
+        )
+
+    );
+
+
+    header.appendChild(
+
+        creerImage(
+            "images/symbole.jpeg",
+            "right"
+        )
+
+    );
+
+
+    pdfContainer.appendChild(
+        header
+    );
+
+
+    // =================================================
+    // ESPACE ENTRE EN-TÊTE ET TEXTE
+    // =================================================
+
+    const espace =
+        document.createElement(
+            "div"
+        );
+
+
+    espace.style.height =
+        "150px";
+
+
+    pdfContainer.appendChild(
+        espace
+    );
+
+
+    // =================================================
+    // PARAGRAPHE PDF
+    // =================================================
+
+    function ajouterParagraphe(
+        contenu,
+        options = {}
+    ) {
+
+        const p =
+            document.createElement(
+                "div"
+            );
+
+
+        p.textContent =
+            contenu;
+
+
+        p.style.direction =
+            "rtl";
+
+        p.style.unicodeBidi =
+            "plaintext";
+
+
+        // JUSTIFICATION DU TEXTE
+        p.style.textAlign =
+            options.align ||
+            "justify";
+
+
+        p.style.fontFamily =
+            '"' +
+            POLICE_ARABE +
+            '", Arial, sans-serif';
+
+
+        p.style.fontSize =
+            options.size ||
+            "33px";
+
+
+        p.style.fontWeight =
+            options.bold
+                ? "bold"
+                : "normal";
+
+
+        p.style.lineHeight =
+            options.lineHeight ||
+            "1.35";
+
+
+        p.style.margin =
+            "0";
+
+        p.style.padding =
+            "0";
+
+
+        p.style.width =
+            "100%";
+
+        p.style.boxSizing =
+            "border-box";
+
+
+        p.style.whiteSpace =
+            "normal";
+
+
+        p.style.overflowWrap =
+            "break-word";
+
+
+        pdfContainer.appendChild(
+            p
+        );
+
+
+        return p;
+
+    }
+
+
+    // =================================================
+    // DESTINATAIRE
+    // =================================================
+
+    ajouterParagraphe(
+
+        "السيد رئيس مجلس النواب المحترم.",
+
+        {
+
+            align:
+                "center",
+
+            size:
+                "40px",
+
+            bold:
+                true
+
+        }
+
+    );
+
+
+    // =================================================
+    // SUJET
+    // =================================================
+
+    ajouterParagraphe(
+
+        "الموضوع: سؤال كتابي حول " +
+        subject,
+
+        {
+
+            // JUSTIFIÉ
+            align:
+                "justify",
+
+            size:
+                "36px",
+
+            bold:
+                true,
+
+            lineHeight:
+                "1.35"
+
+        }
+
+    );
+
+
+    // =================================================
+    // SALUTATION
+    // =================================================
+
+    ajouterParagraphe(
+
+        "سلام تام بوجود مولانا الإمام،",
+
+        {
+
+            align:
+                "center",
+
+            size:
+                "40px",
+
+            bold:
+                true
+
+        }
+
+    );
+
+
+    // =================================================
+    // INTRODUCTION
+    // =================================================
+
+    ajouterParagraphe(
+
+        "طبقا لمقتضيات النظام الداخلي لمجلس النواب، يشرفني أن ألتمس من سيادتكم رفع السؤال الكتابي التالي إلى " +
+        fonctionMinistre,
+
+        {
+
+            // JUSTIFIÉ
+            align:
+                "justify",
+
+            size:
+                "33px",
+
+            lineHeight:
+                "1.35"
+
+        }
+
+    );
+
+
+    // =================================================
+    // TEXTE DE LA QUESTION
+    // =================================================
+
+    const lines =
+        text
+            .split(/\r\n|\r|\n/)
+            .map(
+                function (
+                    line
+                ) {
+
+                    return line.trim();
+
+                }
+            )
+            .filter(
+                function (
+                    line
+                ) {
+
+                    return line !== "";
+
+                }
+            );
+
+
+    lines.forEach(
+        function (
+            line
+        ) {
+
+            ajouterParagraphe(
+
+                line,
+
+                {
+
+                    // JUSTIFIÉ
+                    align:
+                        "justify",
+
+                    size:
+                        "33px",
+
+                    lineHeight:
+                        "1.35"
+
+                }
+
+            );
+
+        }
+    );
+
+
+    // =================================================
+    // SIGNATURE
+    // =================================================
+
+    const espaceSignature =
+        document.createElement(
+            "div"
+        );
+
+
+    espaceSignature.style.height =
+        "20px";
+
+
+    pdfContainer.appendChild(
+        espaceSignature
+    );
+
+
+    // =================================================
+    // FORMULE DE POLITESSE
+    // =================================================
+
+    ajouterParagraphe(
+
+        "وتفضلوا بقبول فائق التقدير والاحترام",
+
+        {
+
+            align:
+                "center",
+
+            size:
+                "40px",
+
+            bold:
+                true
+
+        }
+
+    );
+
+
+    // =================================================
+    // NOM DU DÉPUTÉ
+    // =================================================
+
+    ajouterParagraphe(
+
+        nomDepute,
+
+        {
+
+            align:
+                "center",
+
+            size:
+                "40px",
+
+            bold:
+                true
+
+        }
+
+    );
+
+
+    // =================================================
+    // FONCTION DU DÉPUTÉ
+    // =================================================
+
+    ajouterParagraphe(
+
+        titreDepute,
+
+        {
+
+            align:
+                "center",
+
+            size:
+                "33px"
+
+        }
+
+    );
+
+
+    // =================================================
+    // AJOUT AU DOM
+    // =================================================
+
+    document.body.appendChild(
+        pdfContainer
+    );
+
+
+    try {
+
+        // =================================================
+        // ATTENDRE LE CHARGEMENT DES IMAGES
+        // =================================================
+
+        const images =
+            pdfContainer.querySelectorAll(
+                "img"
+            );
+
+
+        await Promise.all(
+
+            Array.from(
+                images
+            ).map(
+                function (
+                    img
+                ) {
+
+                    return new Promise(
+                        function (
+                            resolve
+                        ) {
+
+                            if (
+                                img.complete &&
+                                img.naturalWidth > 0
+                            ) {
+
+                                resolve();
+
+                                return;
+
+                            }
+
+
+                            img.onload =
+                                resolve;
+
+                            img.onerror =
+                                resolve;
+
+                        }
+                    );
+
+                }
+            )
+
+        );
+
+
+        // =================================================
+        // ATTENDRE LE RENDU
+        // =================================================
+
+        await new Promise(
+            function (
+                resolve
+            ) {
+
+                requestAnimationFrame(
+                    function () {
+
+                        requestAnimationFrame(
+                            resolve
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        // =================================================
+        // DIMENSIONS
+        // =================================================
+
+        const largeur =
+            pdfContainer.offsetWidth;
+
+
+        const hauteur =
+            pdfContainer.scrollHeight;
+
+
+        console.log(
+            "PDF :",
+            largeur,
+            "x",
+            hauteur
+        );
+
+
+        // =================================================
+        // HTML → CANVAS
+        // =================================================
+
+        const canvas =
+            await html2canvas(
+                pdfContainer,
+                {
+
+                    scale:
+                        2,
+
+                    backgroundColor:
+                        "#ffffff",
+
+                    useCORS:
+                        true,
+
+                    allowTaint:
+                        false,
+
+                    logging:
+                        false,
+
+                    width:
+                        largeur,
+
+                    height:
+                        hauteur,
+
+                    scrollX:
+                        0,
+
+                    scrollY:
+                        0
+
+                }
+            );
+
+
+        // =================================================
+        // CRÉATION PDF A4
+        // =================================================
+
+        const pdf =
+            new jsPDF({
+
+                orientation:
+                    "portrait",
+
+                unit:
+                    "mm",
+
+                format:
+                    "a4",
+
+                compress:
+                    true
+
+            });
+
+
+        const pageWidth =
+            210;
+
+
+        const pageHeight =
+            297;
+
+
+        const margin =
+            10;
+
+
+        const contentWidth =
+            190;
+
+
+        const contentHeight =
+            277;
+
+
+        const ratio =
+            canvas.width /
+            contentWidth;
+
+
+        const pixelsPerPage =
+            Math.floor(
+                contentHeight *
+                ratio
+            );
+
+
+        let position =
+            0;
+
+
+        let pageNumber =
+            0;
+
+
+        // =================================================
+        // DÉCOUPAGE PAGE PAR PAGE
+        // =================================================
+
+        while (
+            position <
+            canvas.height
+        ) {
+
+            pageNumber++;
+
+
+            const height =
+                Math.min(
+                    pixelsPerPage,
+                    canvas.height -
+                    position
+                );
+
+
+            const pageCanvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            pageCanvas.width =
+                canvas.width;
+
+
+            pageCanvas.height =
+                height;
+
+
+            const context =
+                pageCanvas.getContext(
+                    "2d"
+                );
+
+
+            context.fillStyle =
+                "#ffffff";
+
+
+            context.fillRect(
+                0,
+                0,
+                pageCanvas.width,
+                pageCanvas.height
+            );
+
+
+            context.drawImage(
+
+                canvas,
+
+                0,
+                position,
+
+                canvas.width,
+                height,
+
+                0,
+                0,
+
+                canvas.width,
+                height
+
+            );
+
+
+            const imageData =
+                pageCanvas.toDataURL(
+                    "image/jpeg",
+                    0.95
+                );
+
+
+            if (
+                pageNumber > 1
+            ) {
+
+                pdf.addPage();
+
+            }
+
+
+            const imageHeight =
+                height /
+                ratio;
+
+
+            pdf.addImage(
+
+                imageData,
+
+                "JPEG",
+
+                margin,
+
+                margin,
+
+                contentWidth,
+
+                imageHeight,
+
+                undefined,
+
+                "FAST"
+
+            );
+
+
+            position +=
+                height;
+
+        }
+
+
+        // =================================================
+        // SAUVEGARDE
+        // =================================================
+
+        pdf.save(
+
+            "سؤال كتابي حول " +
+            subject +
+            ".pdf"
+
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Erreur PDF :",
+            error
+        );
+
+
+        alert(
+            "Erreur pendant la génération du PDF.\n\n" +
+            error.message
+        );
+
+    }
+
+    finally {
+
+        if (
+            pdfContainer.parentNode
+        ) {
+
+            pdfContainer.parentNode.removeChild(
+                pdfContainer
+            );
+
+        }
+
+    }
 
 }
