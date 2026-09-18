@@ -1,4 +1,3 @@
-
 // =====================================================
 // CHARGEMENT DE LA LIBRAIRIE DOCX
 // =====================================================
@@ -124,7 +123,7 @@ async function chargerImage(
 
 // =====================================================
 // TÉLÉCHARGER WORD
-// UTILISÉ SUR ORDINATEUR
+// UTILISÉ UNIQUEMENT SUR ORDINATEUR
 // =====================================================
 
 async function telechargerWord(
@@ -136,10 +135,8 @@ async function telechargerWord(
         new Blob(
             [blob],
             {
-
                 type:
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
             }
         );
 
@@ -667,15 +664,8 @@ function initialiserApplication() {
 
 
             // =================================================
-            // SUR MOBILE :
+            // MOBILE
             // PDF UNIQUEMENT
-            // =================================================
-            //
-            // IMPORTANT :
-            // On ne lance PAS le téléchargement Word
-            // avant le PDF sur iPhone/Android.
-            //
-            // Cela évite les conflits avec navigator.share().
             // =================================================
 
             if (
@@ -723,6 +713,7 @@ function initialiserApplication() {
 
             // =================================================
             // ORDINATEUR
+            // WORD
             // =================================================
 
             const {
@@ -1547,22 +1538,38 @@ function initialiserApplication() {
 
 
 // =====================================================
-// FALLBACK PDF MOBILE
+// OUVRIR DIRECTEMENT LE PDF SUR MOBILE
 // =====================================================
 //
-// Sur iPhone, <a download> avec un Blob peut être
-// mal interprété par Safari.
-// On ouvre donc directement le PDF dans Safari.
+// IMPORTANT :
+// Aucun navigator.share()
+// Aucun File()
+// Aucun <a download>
+// Aucun texte.txt
+//
+// On ouvre directement l'URL Blob du PDF.
 //
 // =====================================================
 
 function ouvrirPDFMobile(
-    blob
+    pdfBlob
 ) {
 
-    const pdfBlob =
+    if (
+        !pdfBlob ||
+        pdfBlob.size === 0
+    ) {
+
+        throw new Error(
+            "Le PDF est vide."
+        );
+
+    }
+
+
+    const vraiPDF =
         new Blob(
-            [blob],
+            [pdfBlob],
             {
                 type:
                     "application/pdf"
@@ -1570,55 +1577,40 @@ function ouvrirPDFMobile(
         );
 
 
+    console.log(
+        "Ouverture PDF mobile"
+    );
+
+
+    console.log(
+        "Type :",
+        vraiPDF.type
+    );
+
+
+    console.log(
+        "Taille :",
+        vraiPDF.size
+    );
+
+
     const url =
         URL.createObjectURL(
-            pdfBlob
+            vraiPDF
         );
 
 
     // =================================================
-    // IPHONE / SAFARI
+    // OUVERTURE DIRECTE
     // =================================================
 
-    try {
+    window.location.href =
+        url;
 
-        window.location.href =
-            url;
 
-    }
-
-    catch (
-        error
-    ) {
-
-        console.error(
-            "Impossible d'ouvrir le PDF :",
-            error
-        );
-
-        const lien =
-            document.createElement(
-                "a"
-            );
-
-        lien.href =
-            url;
-
-        lien.target =
-            "_blank";
-
-        document.body.appendChild(
-            lien
-        );
-
-        lien.click();
-
-        document.body.removeChild(
-            lien
-        );
-
-    }
-
+    // =================================================
+    // NE PAS SUPPRIMER IMMÉDIATEMENT
+    // =================================================
 
     setTimeout(
         function () {
@@ -1628,14 +1620,22 @@ function ouvrirPDFMobile(
             );
 
         },
-        60000
+        120000
     );
 
 }
 
 
 // =====================================================
-// PARTAGE / TÉLÉCHARGEMENT PDF
+// ENVOYER PDF MOBILE
+// =====================================================
+//
+// IMPORTANT :
+// On ne fait PLUS navigator.share().
+//
+// Cela évite que Safari/iOS interprète le contenu
+// comme un fichier texte.
+//
 // =====================================================
 
 async function envoyerPDFMobile(
@@ -1643,8 +1643,24 @@ async function envoyerPDFMobile(
     nomFichier
 ) {
 
+    console.log(
+        "Début traitement PDF mobile."
+    );
+
+
+    if (
+        !blob
+    ) {
+
+        throw new Error(
+            "Le Blob PDF n'existe pas."
+        );
+
+    }
+
+
     // =================================================
-    // BLOB PDF PROPRE
+    // CRÉATION D'UN VRAI PDF
     // =================================================
 
     const pdfBlob =
@@ -1658,16 +1674,20 @@ async function envoyerPDFMobile(
 
 
     console.log(
-        "PDF MIME :",
+        "PDF mobile MIME :",
         pdfBlob.type
     );
 
 
     console.log(
-        "PDF taille :",
+        "PDF mobile taille :",
         pdfBlob.size
     );
 
+
+    // =================================================
+    // VÉRIFICATION
+    // =================================================
 
     if (
         pdfBlob.size === 0
@@ -1681,126 +1701,23 @@ async function envoyerPDFMobile(
 
 
     // =================================================
-    // FICHIER PDF
-    // =================================================
-
-    const fichier =
-        new File(
-            [pdfBlob],
-            nomFichier,
-            {
-                type:
-                    "application/pdf",
-                lastModified:
-                    Date.now()
-            }
-        );
-
-
-    console.log(
-        "Nom fichier :",
-        fichier.name
-    );
-
-
-    console.log(
-        "Type fichier :",
-        fichier.type
-    );
-
-
-    // =================================================
-    // PARTAGE NATIF
+    // VÉRIFICATION DU TYPE
     // =================================================
 
     if (
-        typeof navigator.share ===
-        "function"
+        pdfBlob.type !==
+        "application/pdf"
     ) {
 
-        try {
-
-            let partagePossible =
-                true;
-
-
-            if (
-                typeof navigator.canShare ===
-                "function"
-            ) {
-
-                partagePossible =
-                    navigator.canShare(
-                        {
-                            files:
-                                [fichier]
-                        }
-                    );
-
-            }
-
-
-            console.log(
-                "Partage fichier possible :",
-                partagePossible
-            );
-
-
-            if (
-                partagePossible
-            ) {
-
-                await navigator.share({
-
-                    files:
-                        [fichier],
-
-                    title:
-                        "Question écrite",
-
-                    text:
-                        "Question écrite"
-
-                });
-
-
-                console.log(
-                    "PDF partagé avec succès."
-                );
-
-
-                return;
-
-            }
-
-        }
-
-        catch (
-            error
-        ) {
-
-            console.log(
-                "Partage natif non disponible :",
-                error
-            );
-
-
-            if (
-                error.name ===
-                "AbortError"
-            ) {
-
-                return;
-
-            }
-
-        }
+        throw new Error(
+            "Le fichier généré n'est pas reconnu comme PDF."
+        );
 
     }
 
 
     // =================================================
-    // FALLBACK
+    // OUVERTURE DIRECTE
     // =================================================
 
     ouvrirPDFMobile(
@@ -1971,7 +1888,7 @@ async function genererPDF(
 
 
     // =================================================
-    // IMAGE
+    // CRÉER IMAGE
     // =================================================
 
     function creerImage(
@@ -2113,7 +2030,7 @@ async function genererPDF(
 
 
     // =================================================
-    // PARAGRAPHE
+    // AJOUTER PARAGRAPHE
     // =================================================
 
     function ajouterParagraphe(
@@ -2448,7 +2365,7 @@ async function genererPDF(
 
 
     // =================================================
-    // AJOUT DOM
+    // AJOUT AU DOM
     // =================================================
 
     document.body.appendChild(
@@ -2459,7 +2376,7 @@ async function genererPDF(
     try {
 
         // =================================================
-        // ATTENDRE IMAGES
+        // ATTENDRE LES IMAGES
         // =================================================
 
         const images =
@@ -2511,7 +2428,7 @@ async function genererPDF(
 
 
         // =================================================
-        // ATTENDRE RENDU
+        // ATTENDRE LE RENDU
         // =================================================
 
         await new Promise(
@@ -2557,8 +2474,20 @@ async function genererPDF(
         );
 
 
+        if (
+            largeur <= 0 ||
+            hauteur <= 0
+        ) {
+
+            throw new Error(
+                "Le contenu PDF n'a pas de dimensions valides."
+            );
+
+        }
+
+
         // =================================================
-        // PDF
+        // CRÉATION PDF
         // =================================================
 
         const pdf =
@@ -2612,7 +2541,7 @@ async function genererPDF(
 
 
         // =================================================
-        // PAGES
+        // GÉNÉRATION DES PAGES
         // =================================================
 
         while (
@@ -2687,6 +2616,19 @@ async function genererPDF(
 
                     }
                 );
+
+
+            if (
+                !pageCanvas ||
+                pageCanvas.width === 0 ||
+                pageCanvas.height === 0
+            ) {
+
+                throw new Error(
+                    "Impossible de créer l'image de la page PDF."
+                );
+
+            }
 
 
             const imageData =
@@ -2770,18 +2712,13 @@ async function genererPDF(
         // =================================================
         // NOM PDF
         // =================================================
-        //
-        // On utilise un nom simple ASCII pour éviter
-        // les problèmes de compatibilité Safari/iOS.
-        //
-        // =================================================
 
         const nomFichier =
             "question-ecrite.pdf";
 
 
         // =================================================
-        // BLOB PDF
+        // EXTRACTION DU BLOB PDF
         // =================================================
 
         const blob =
@@ -2789,6 +2726,28 @@ async function genererPDF(
                 "blob"
             );
 
+
+        console.log(
+            "Blob original :",
+            blob
+        );
+
+
+        console.log(
+            "Type original :",
+            blob.type
+        );
+
+
+        console.log(
+            "Taille originale :",
+            blob.size
+        );
+
+
+        // =================================================
+        // CRÉER LE VRAI BLOB PDF
+        // =================================================
 
         const pdfBlob =
             new Blob(
@@ -2801,17 +2760,26 @@ async function genererPDF(
 
 
         console.log(
-            "PDF généré :",
-            pdfBlob.size,
-            "octets"
+            "PDF final :",
+            pdfBlob
         );
 
 
         console.log(
-            "MIME :",
+            "PDF final MIME :",
             pdfBlob.type
         );
 
+
+        console.log(
+            "PDF final taille :",
+            pdfBlob.size
+        );
+
+
+        // =================================================
+        // VÉRIFICATION FINALE
+        // =================================================
 
         if (
             pdfBlob.size === 0
@@ -2819,6 +2787,18 @@ async function genererPDF(
 
             throw new Error(
                 "Le PDF généré est vide."
+            );
+
+        }
+
+
+        if (
+            pdfBlob.type !==
+            "application/pdf"
+        ) {
+
+            throw new Error(
+                "Le type du fichier généré n'est pas application/pdf."
             );
 
         }
@@ -2832,9 +2812,17 @@ async function genererPDF(
             estMobile
         ) {
 
+            console.log(
+                "Ouverture directe du PDF sur mobile..."
+            );
+
+
             await envoyerPDFMobile(
+
                 pdfBlob,
+
                 nomFichier
+
             );
 
         }
@@ -2915,7 +2903,7 @@ async function genererPDF(
     finally {
 
         // =================================================
-        // SUPPRIMER CONTENEUR
+        // SUPPRIMER LE CONTENEUR
         // =================================================
 
         if (
@@ -2931,4 +2919,3 @@ async function genererPDF(
     }
 
 }
-
