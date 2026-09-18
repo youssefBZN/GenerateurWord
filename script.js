@@ -14,7 +14,10 @@ docxScript.onload = function () {
         typeof window.docx
     );
 
-    if (typeof window.docx === "undefined") {
+    if (
+        typeof window.docx ===
+        "undefined"
+    ) {
 
         console.error(
             "window.docx est undefined."
@@ -30,6 +33,7 @@ docxScript.onload = function () {
     initialiserApplication();
 };
 
+
 docxScript.onerror = function () {
 
     console.error(
@@ -39,23 +43,30 @@ docxScript.onerror = function () {
     alert(
         "Impossible de charger la librairie Word. Vérifiez votre connexion Internet."
     );
+
 };
 
-document.head.appendChild(docxScript);
+
+document.head.appendChild(
+    docxScript
+);
 
 
 // =====================================================
 // POLICE UTILISÉE DANS WORD
 // =====================================================
 
-const POLICE_ARABE = "Traditional Arabic";
+const POLICE_ARABE =
+    "Traditional Arabic";
 
 
 // =====================================================
 // CHARGER UNE IMAGE
 // =====================================================
 
-async function chargerImage(chemin) {
+async function chargerImage(
+    chemin
+) {
 
     const imageUrl =
         new URL(
@@ -63,28 +74,43 @@ async function chargerImage(chemin) {
             document.baseURI
         ).href;
 
+
     console.log(
         "Chargement image :",
         imageUrl
     );
 
-    const response =
-        await fetch(imageUrl);
 
-    if (!response.ok) {
+    const response =
+        await fetch(
+            imageUrl
+        );
+
+
+    if (
+        !response.ok
+    ) {
 
         throw new Error(
+
             "Impossible de charger l'image : " +
             imageUrl +
             " - HTTP " +
             response.status
+
         );
+
     }
+
 
     const buffer =
         await response.arrayBuffer();
 
-    return new Uint8Array(buffer);
+
+    return new Uint8Array(
+        buffer
+    );
+
 }
 
 
@@ -107,10 +133,12 @@ async function telechargerWord(
             }
         );
 
+
     const isMobile =
         /Android|iPhone|iPad|iPod/i.test(
             navigator.userAgent
         );
+
 
     if (
         isMobile &&
@@ -127,12 +155,10 @@ async function telechargerWord(
                 ],
 
                 title:
-                    "Question écrite",
-
-                text:
-                    "Question écrite"
+                    fileName
 
             };
+
 
             if (
                 navigator.canShare(
@@ -145,11 +171,14 @@ async function telechargerWord(
                 );
 
                 return;
+
             }
 
         }
 
-        catch (error) {
+        catch (
+            error
+        ) {
 
             if (
                 error.name ===
@@ -157,15 +186,23 @@ async function telechargerWord(
             ) {
 
                 return;
+
             }
+
 
             console.error(
                 "Erreur partage mobile :",
                 error
             );
+
         }
+
     }
 
+
+    // =================================================
+    // TÉLÉCHARGEMENT NORMAL
+    // =================================================
 
     const url =
         URL.createObjectURL(
@@ -182,8 +219,10 @@ async function telechargerWord(
     link.href =
         url;
 
+
     link.download =
         fileName;
+
 
     link.style.display =
         "none";
@@ -193,7 +232,9 @@ async function telechargerWord(
         link
     );
 
+
     link.click();
+
 
     document.body.removeChild(
         link
@@ -210,6 +251,7 @@ async function telechargerWord(
         },
         10000
     );
+
 }
 
 
@@ -503,6 +545,7 @@ function initialiserApplication() {
         );
 
         return;
+
     }
 
 
@@ -521,11 +564,14 @@ function initialiserApplication() {
                     "option"
                 );
 
+
             option.value =
                 index;
 
+
             option.textContent =
                 depute.nom;
+
 
             deputeSelect.appendChild(
                 option
@@ -550,11 +596,14 @@ function initialiserApplication() {
                     "option"
                 );
 
+
             option.value =
                 index;
 
+
             option.textContent =
                 ministre.fonction;
+
 
             ministreSelect.appendChild(
                 option
@@ -597,6 +646,7 @@ function initialiserApplication() {
                 );
 
                 return;
+
             }
 
 
@@ -609,6 +659,7 @@ function initialiserApplication() {
                 );
 
                 return;
+
             }
 
 
@@ -621,6 +672,7 @@ function initialiserApplication() {
                 );
 
                 return;
+
             }
 
 
@@ -633,6 +685,7 @@ function initialiserApplication() {
                 );
 
                 return;
+
             }
 
 
@@ -716,18 +769,23 @@ function initialiserApplication() {
 
             }
 
-            catch (error) {
+            catch (
+                error
+            ) {
 
                 console.error(
                     error
                 );
+
 
                 alert(
                     "Impossible de charger les images.\n\n" +
                     error.message
                 );
 
+
                 return;
+
             }
 
 
@@ -736,13 +794,6 @@ function initialiserApplication() {
 
             // =================================================
             // FONCTION TEXT RUN RTL
-            // =================================================
-            //
-            // C'EST LA CORRECTION PRINCIPALE.
-            //
-            // rightToLeft:true
-            // = w:rtl dans le DOCX
-            //
             // =================================================
 
             function runArabe(
@@ -822,6 +873,7 @@ function initialiserApplication() {
                         runArabe(
                             texte,
                             {
+
                                 size:
                                     options.size ||
                                     36,
@@ -829,6 +881,7 @@ function initialiserApplication() {
                                 bold:
                                     options.bold ||
                                     false
+
                             }
                         )
 
@@ -1397,7 +1450,7 @@ function initialiserApplication() {
 
 
             // =================================================
-            // NOM DU FICHIER
+            // NOM DU FICHIER WORD
             // =================================================
 
             const fileName =
@@ -1442,7 +1495,9 @@ function initialiserApplication() {
 
             }
 
-            catch (error) {
+            catch (
+                error
+            ) {
 
                 console.error(
                     "Erreur Word :",
@@ -1483,7 +1538,9 @@ function initialiserApplication() {
 
             }
 
-            catch (error) {
+            catch (
+                error
+            ) {
 
                 console.error(
                     "Erreur PDF :",
@@ -1498,49 +1555,59 @@ function initialiserApplication() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 // =====================================================
 // TÉLÉCHARGEMENT PDF MOBILE
 // =====================================================
 
-function telechargerPDFMobile(blob, nomFichier) {
+function telechargerPDFMobile(
+    blob,
+    nomFichier
+) {
 
     const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+            blob
+        );
+
 
     const lien =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
+
 
     lien.href =
         url;
 
+
     lien.download =
         nomFichier;
+
 
     lien.target =
         "_blank";
 
+
     lien.rel =
         "noopener";
+
+
+    lien.style.display =
+        "none";
+
 
     document.body.appendChild(
         lien
     );
 
+
     lien.click();
+
 
     document.body.removeChild(
         lien
     );
+
 
     setTimeout(
         function () {
@@ -1550,8 +1617,9 @@ function telechargerPDFMobile(blob, nomFichier) {
             );
 
         },
-        10000
+        30000
     );
+
 }
 
 
@@ -1606,7 +1674,8 @@ async function genererPDF(
 
     const {
         jsPDF
-    } = window.jspdf;
+    } =
+        window.jspdf;
 
 
     // =================================================
@@ -1621,14 +1690,6 @@ async function genererPDF(
 
     // =================================================
     // SCALE
-    // =================================================
-    //
-    // PC :
-    // meilleure qualité
-    //
-    // MOBILE :
-    // beaucoup moins de mémoire
-    //
     // =================================================
 
     const scaleCanvas =
@@ -1664,16 +1725,14 @@ async function genererPDF(
     pdfContainer.style.position =
         "absolute";
 
+
     pdfContainer.style.left =
         "-10000px";
+
 
     pdfContainer.style.top =
         "0";
 
-
-    // =================================================
-    // LARGEUR
-    // =================================================
 
     pdfContainer.style.width =
         "794px";
@@ -1681,6 +1740,7 @@ async function genererPDF(
 
     pdfContainer.style.background =
         "#ffffff";
+
 
     pdfContainer.style.color =
         "#000000";
@@ -1721,8 +1781,10 @@ async function genererPDF(
     header.style.position =
         "relative";
 
+
     header.style.width =
         "100%";
+
 
     header.style.height =
         "120px";
@@ -1800,6 +1862,7 @@ async function genererPDF(
 
             img.style.left =
                 "50%";
+
 
             img.style.transform =
                 "translateX(-50%)";
@@ -1889,9 +1952,9 @@ async function genererPDF(
             contenu;
 
 
-        // -------------------------------------------------
-        // ARABE RTL
-        // -------------------------------------------------
+        // =================================================
+        // RTL
+        // =================================================
 
         p.style.direction =
             "rtl";
@@ -1901,18 +1964,18 @@ async function genererPDF(
             "plaintext";
 
 
-        // -------------------------------------------------
+        // =================================================
         // ALIGNEMENT
-        // -------------------------------------------------
+        // =================================================
 
         p.style.textAlign =
             options.align ||
             "justify";
 
 
-        // -------------------------------------------------
+        // =================================================
         // POLICE
-        // -------------------------------------------------
+        // =================================================
 
         p.style.fontFamily =
             '"' +
@@ -1920,18 +1983,18 @@ async function genererPDF(
             '", Arial, sans-serif';
 
 
-        // -------------------------------------------------
+        // =================================================
         // TAILLE
-        // -------------------------------------------------
+        // =================================================
 
         p.style.fontSize =
             options.size ||
             "33px";
 
 
-        // -------------------------------------------------
+        // =================================================
         // GRAS
-        // -------------------------------------------------
+        // =================================================
 
         p.style.fontWeight =
             options.bold
@@ -1939,29 +2002,30 @@ async function genererPDF(
                 : "normal";
 
 
-        // -------------------------------------------------
+        // =================================================
         // INTERLIGNE
-        // -------------------------------------------------
+        // =================================================
 
         p.style.lineHeight =
             options.lineHeight ||
             "1.35";
 
 
-        // -------------------------------------------------
-        // AUCUN ESPACE ENTRE PARAGRAPHES
-        // -------------------------------------------------
+        // =================================================
+        // ESPACES
+        // =================================================
 
         p.style.margin =
             "0";
+
 
         p.style.padding =
             "0";
 
 
-        // -------------------------------------------------
+        // =================================================
         // LARGEUR
-        // -------------------------------------------------
+        // =================================================
 
         p.style.width =
             "100%";
@@ -1971,9 +2035,9 @@ async function genererPDF(
             "border-box";
 
 
-        // -------------------------------------------------
-        // RETOUR AUTOMATIQUE
-        // -------------------------------------------------
+        // =================================================
+        // TEXTE
+        // =================================================
 
         p.style.whiteSpace =
             "normal";
@@ -1982,10 +2046,6 @@ async function genererPDF(
         p.style.overflowWrap =
             "break-word";
 
-
-        // -------------------------------------------------
-        // AJOUT
-        // -------------------------------------------------
 
         pdfContainer.appendChild(
             p
@@ -2106,14 +2166,18 @@ async function genererPDF(
         text
             .split(/\r\n|\r|\n/)
             .map(
-                function (line) {
+                function (
+                    line
+                ) {
 
                     return line.trim();
 
                 }
             )
             .filter(
-                function (line) {
+                function (
+                    line
+                ) {
 
                     return line !== "";
 
@@ -2122,7 +2186,9 @@ async function genererPDF(
 
 
     lines.forEach(
-        function (line) {
+        function (
+            line
+        ) {
 
             ajouterParagraphe(
 
@@ -2148,7 +2214,7 @@ async function genererPDF(
 
 
     // =================================================
-    // ESPACE AVANT SIGNATURE
+    // ESPACE SIGNATURE
     // =================================================
 
     const espaceSignature =
@@ -2247,7 +2313,7 @@ async function genererPDF(
     try {
 
         // =================================================
-        // ATTENDRE LE CHARGEMENT DES IMAGES
+        // ATTENDRE LES IMAGES
         // =================================================
 
         const images =
@@ -2261,10 +2327,14 @@ async function genererPDF(
             Array.from(
                 images
             ).map(
-                function (img) {
+                function (
+                    img
+                ) {
 
                     return new Promise(
-                        function (resolve) {
+                        function (
+                            resolve
+                        ) {
 
                             if (
                                 img.complete &&
@@ -2295,11 +2365,13 @@ async function genererPDF(
 
 
         // =================================================
-        // ATTENDRE LE RENDU DU DOM
+        // ATTENDRE LE RENDU
         // =================================================
 
         await new Promise(
-            function (resolve) {
+            function (
+                resolve
+            ) {
 
                 requestAnimationFrame(
                     function () {
@@ -2316,7 +2388,7 @@ async function genererPDF(
 
 
         // =================================================
-        // DIMENSIONS DU DOCUMENT
+        // DIMENSIONS
         // =================================================
 
         const largeur =
@@ -2340,7 +2412,7 @@ async function genererPDF(
 
 
         // =================================================
-        // CRÉATION DU PDF
+        // CRÉATION PDF
         // =================================================
 
         const pdf =
@@ -2362,7 +2434,7 @@ async function genererPDF(
 
 
         // =================================================
-        // DIMENSIONS A4
+        // A4
         // =================================================
 
         const margin =
@@ -2378,19 +2450,7 @@ async function genererPDF(
 
 
         // =================================================
-        // CALCUL DE L'ÉCHELLE
-        // =================================================
-        //
-        // IMPORTANT :
-        //
-        // On ne crée PLUS un énorme canvas.
-        //
-        // On rend directement chaque portion
-        // correspondant à une page A4.
-        //
-        // Cela réduit fortement la mémoire utilisée
-        // sur iPhone et Android.
-        //
+        // RATIO
         // =================================================
 
         const ratio =
@@ -2412,7 +2472,7 @@ async function genererPDF(
 
 
         // =================================================
-        // POSITION DE DÉPART
+        // POSITION
         // =================================================
 
         let position =
@@ -2424,7 +2484,7 @@ async function genererPDF(
 
 
         // =================================================
-        // RENDU PAGE PAR PAGE
+        // GÉNÉRATION PAGE PAR PAGE
         // =================================================
 
         while (
@@ -2441,10 +2501,6 @@ async function genererPDF(
             );
 
 
-            // -------------------------------------------------
-            // HAUTEUR DE LA PAGE
-            // -------------------------------------------------
-
             const hauteurRestante =
                 hauteur -
                 position;
@@ -2457,9 +2513,9 @@ async function genererPDF(
                 );
 
 
-            // -------------------------------------------------
-            // RENDRE UNIQUEMENT CETTE PARTIE
-            // -------------------------------------------------
+            // =================================================
+            // CANVAS DE LA PAGE
+            // =================================================
 
             const pageCanvas =
                 await html2canvas(
@@ -2509,9 +2565,9 @@ async function genererPDF(
                 );
 
 
-            // -------------------------------------------------
-            // CONVERTIR EN IMAGE
-            // -------------------------------------------------
+            // =================================================
+            // IMAGE
+            // =================================================
 
             const imageData =
                 pageCanvas.toDataURL(
@@ -2522,9 +2578,9 @@ async function genererPDF(
                 );
 
 
-            // -------------------------------------------------
-            // AJOUTER UNE PAGE
-            // -------------------------------------------------
+            // =================================================
+            // AJOUT PAGE
+            // =================================================
 
             if (
                 pageNumber > 1
@@ -2535,18 +2591,18 @@ async function genererPDF(
             }
 
 
-            // -------------------------------------------------
-            // CALCUL HAUTEUR IMAGE
-            // -------------------------------------------------
+            // =================================================
+            // HAUTEUR IMAGE
+            // =================================================
 
             const imageHeight =
                 hauteurPage /
                 ratio;
 
 
-            // -------------------------------------------------
-            // AJOUT IMAGE
-            // -------------------------------------------------
+            // =================================================
+            // AJOUT IMAGE AU PDF
+            // =================================================
 
             pdf.addImage(
 
@@ -2569,35 +2625,38 @@ async function genererPDF(
             );
 
 
-            // -------------------------------------------------
+            // =================================================
             // AVANCER
-            // -------------------------------------------------
+            // =================================================
 
             position +=
                 hauteurPage;
 
 
-            // -------------------------------------------------
-            // LIBÉRER IMMÉDIATEMENT LA MÉMOIRE
-            // -------------------------------------------------
+            // =================================================
+            // LIBÉRER MÉMOIRE
+            // =================================================
 
             pageCanvas.width =
                 1;
+
 
             pageCanvas.height =
                 1;
 
 
-            // -------------------------------------------------
-            // LAISSER LE NAVIGATEUR RESPIRER
-            // -------------------------------------------------
+            // =================================================
+            // PAUSE MOBILE
+            // =================================================
 
             if (
                 estMobile
             ) {
 
                 await new Promise(
-                    function (resolve) {
+                    function (
+                        resolve
+                    ) {
 
                         setTimeout(
                             resolve,
@@ -2613,7 +2672,7 @@ async function genererPDF(
 
 
         // =================================================
-        // NOM DU FICHIER
+        // NOM DU FICHIER PDF
         // =================================================
 
         const nomFichier =
@@ -2623,7 +2682,7 @@ async function genererPDF(
 
 
         // =================================================
-        // CRÉER LE BLOB
+        // BLOB PDF
         // =================================================
 
         const blob =
@@ -2648,7 +2707,7 @@ async function genererPDF(
         ) {
 
             // -------------------------------------------------
-            // CRÉER LE FICHIER
+            // CRÉER FICHIER
             // -------------------------------------------------
 
             const fichier =
@@ -2656,8 +2715,10 @@ async function genererPDF(
                     [blob],
                     nomFichier,
                     {
+
                         type:
                             "application/pdf"
+
                     }
                 );
 
@@ -2683,33 +2744,33 @@ async function genererPDF(
                         partagePossible =
                             navigator.canShare(
                                 {
+
                                     files:
                                         [fichier]
+
                                 }
                             );
 
                     }
 
 
+                    // -------------------------------------------------
+                    // PARTAGE
+                    // -------------------------------------------------
+
                     if (
                         partagePossible
                     ) {
 
-                        await navigator.share(
-                            {
+                        await navigator.share({
 
-                                files:
-                                    [fichier],
+                            files:
+                                [fichier],
 
-                                title:
-                                    "Question écrite",
+                            title:
+                                nomFichier
 
-                                text:
-                                    "Question écrite"
-
-                            }
-                        );
-
+                        });
 
                     }
 
@@ -2722,7 +2783,6 @@ async function genererPDF(
 
                     }
 
-
                 }
 
                 catch (
@@ -2730,7 +2790,7 @@ async function genererPDF(
                 ) {
 
                     console.log(
-                        "Partage mobile indisponible :",
+                        "Partage PDF indisponible :",
                         shareError
                     );
 
@@ -2790,8 +2850,10 @@ async function genererPDF(
 
 
         alert(
+
             "Erreur pendant la génération du PDF.\n\n" +
             error.message
+
         );
 
     }
@@ -2799,7 +2861,7 @@ async function genererPDF(
     finally {
 
         // =================================================
-        // SUPPRIMER LE CONTENEUR
+        // SUPPRIMER CONTENEUR
         // =================================================
 
         if (
