@@ -2906,4 +2906,3 @@ async function genererPDF(
 
 }
 
-alert('ussef')
