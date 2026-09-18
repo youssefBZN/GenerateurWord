@@ -74,18 +74,15 @@ async function chargerImage(
             document.baseURI
         ).href;
 
-
     console.log(
         "Chargement image :",
         imageUrl
     );
 
-
     const response =
         await fetch(
             imageUrl
         );
-
 
     if (
         !response.ok
@@ -102,10 +99,8 @@ async function chargerImage(
 
     }
 
-
     const buffer =
         await response.arrayBuffer();
-
 
     return new Uint8Array(
         buffer
@@ -450,6 +445,7 @@ function traiterDepute(
 
     }
 
+
     else if (
         nomOriginal.startsWith(
             "السيدة النائبة"
@@ -460,6 +456,7 @@ function traiterDepute(
             "نائبة برلمانية";
 
     }
+
 
     else {
 
@@ -706,10 +703,8 @@ function initialiserApplication() {
 
 
             const {
-
                 nomDepute,
                 titreDepute
-
             } =
                 traiterDepute(
                     depute
@@ -725,7 +720,6 @@ function initialiserApplication() {
             // =================================================
 
             const {
-
                 Document,
                 Packer,
                 Paragraph,
@@ -1234,7 +1228,9 @@ function initialiserApplication() {
 
             const lines =
                 text
+
                     .split(/\r\n|\r|\n/)
+
                     .map(
                         function (
                             line
@@ -1244,6 +1240,7 @@ function initialiserApplication() {
 
                         }
                     )
+
                     .filter(
                         function (
                             line
@@ -1722,12 +1719,30 @@ async function genererPDF(
         );
 
 
+    // =================================================
+    // CORRECTION IMPORTANTE POUR MOBILE
+    // =================================================
+    //
+    // AVANT :
+    //
+    // position = absolute
+    // left = -10000px
+    //
+    // Sur certains navigateurs mobiles,
+    // html2canvas ne capturait pas correctement
+    // le contenu situé hors de l'écran.
+    //
+    // MAINTENANT :
+    //
+    // Le conteneur reste dans la zone capturable.
+    // =================================================
+
     pdfContainer.style.position =
-        "absolute";
+        "fixed";
 
 
     pdfContainer.style.left =
-        "-10000px";
+        "0";
 
 
     pdfContainer.style.top =
@@ -1766,6 +1781,10 @@ async function genererPDF(
 
     pdfContainer.style.zIndex =
         "999999";
+
+
+    pdfContainer.style.pointerEvents =
+        "none";
 
 
     // =================================================
@@ -1848,6 +1867,7 @@ async function genererPDF(
 
         }
 
+
         else if (
             position ===
             "right"
@@ -1857,6 +1877,7 @@ async function genererPDF(
                 "0";
 
         }
+
 
         else {
 
@@ -2164,7 +2185,9 @@ async function genererPDF(
 
     const lines =
         text
+
             .split(/\r\n|\r|\n/)
+
             .map(
                 function (
                     line
@@ -2174,6 +2197,7 @@ async function genererPDF(
 
                 }
             )
+
             .filter(
                 function (
                     line
@@ -2774,6 +2798,7 @@ async function genererPDF(
 
                     }
 
+
                     else {
 
                         telechargerPDFMobile(
@@ -2808,6 +2833,7 @@ async function genererPDF(
 
             }
 
+
             else {
 
                 // -------------------------------------------------
@@ -2822,6 +2848,7 @@ async function genererPDF(
             }
 
         }
+
 
         // =================================================
         // PC
@@ -2858,6 +2885,7 @@ async function genererPDF(
 
     }
 
+
     finally {
 
         // =================================================
@@ -2877,3 +2905,5 @@ async function genererPDF(
     }
 
 }
+
+alert('ussef')
