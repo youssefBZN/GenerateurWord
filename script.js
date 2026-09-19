@@ -2,7 +2,7 @@
 // =====================================================
 // CHARGEMENT DE LA LIBRAIRIE DOCX
 // =====================================================
-
+alert("TEst");
 const docxScript = document.createElement("script");
 
 docxScript.src =
@@ -2964,4 +2964,3 @@ async function genererPDF(
 }
 
 
-alert('test')
