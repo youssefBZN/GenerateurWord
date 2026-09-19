@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 3')
+alert('test app 4')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -804,11 +804,15 @@ function afficherResultatsMobile(
 // BOUTON PDF
 // =================================================
 
+// =================================================
+// BOUTON PDF
+// =================================================
+
 const pdfButton =
     document.createElement("button");
 
 pdfButton.textContent =
-    "📕 Ouvrir / enregistrer PDF";
+    "📕 Ouvrir le PDF";
 
 pdfButton.style.display =
     "block";
@@ -842,27 +846,17 @@ pdfButton.style.color =
 
 
 pdfButton.onclick =
-    function () {
+    async function () {
 
         try {
 
             // =================================================
-            // CRÉER UN VRAI BLOB PDF
+            // VÉRIFIER LE PDF
             // =================================================
 
-            const vraiPDF =
-                new Blob(
-                    [pdfBlob],
-                    {
-                        type:
-                            "application/pdf"
-                    }
-                );
-
-
-            // Vérification
             if (
-                vraiPDF.size === 0
+                !pdfBlob ||
+                pdfBlob.size === 0
             ) {
 
                 throw new Error(
@@ -873,32 +867,81 @@ pdfButton.onclick =
 
 
             console.log(
-                "PDF mobile :",
-                vraiPDF.size,
+                "Taille PDF :",
+                pdfBlob.size,
                 "octets"
             );
 
 
             // =================================================
-            // CRÉER URL PDF
+            // CRÉER UN VRAI FICHIER PDF
+            // =================================================
+
+            const fichierPDF =
+                new File(
+                    [pdfBlob],
+                    "question-ecrite.pdf",
+                    {
+                        type:
+                            "application/pdf"
+                    }
+                );
+
+
+            console.log(
+                "Type PDF :",
+                fichierPDF.type
+            );
+
+
+            console.log(
+                "Nom PDF :",
+                fichierPDF.name
+            );
+
+
+            console.log(
+                "Taille fichier :",
+                fichierPDF.size
+            );
+
+
+            // =================================================
+            // CRÉER URL DU FICHIER
             // =================================================
 
             const url =
                 URL.createObjectURL(
-                    vraiPDF
+                    fichierPDF
                 );
 
 
             // =================================================
-            // OUVRIR LE VRAI PDF
+            // OUVRIR DANS UN NOUVEL ONGLET
             // =================================================
 
-            window.location.href =
-                url;
+            const nouvelleFenetre =
+                window.open(
+                    url,
+                    "_blank"
+                );
 
 
             // =================================================
-            // NE PAS SUPPRIMER IMMÉDIATEMENT
+            // SI SAFARI BLOQUE window.open()
+            // =================================================
+
+            if (!nouvelleFenetre) {
+
+                window.location.assign(
+                    url
+                );
+
+            }
+
+
+            // =================================================
+            // NE PAS SUPPRIMER TROP RAPIDEMENT
             // =================================================
 
             setTimeout(
@@ -917,9 +960,10 @@ pdfButton.onclick =
         catch (error) {
 
             console.error(
-                "Erreur ouverture PDF mobile :",
+                "Erreur ouverture PDF :",
                 error
             );
+
 
             alert(
                 "Impossible d'ouvrir le PDF.\n\n" +
