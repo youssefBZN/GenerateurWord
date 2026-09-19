@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app')
+alert('test app 2')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -556,6 +556,11 @@ function telechargerFichier(
 // INTERFACE RÉSULTATS MOBILE
 // =====================================================
 
+// =====================================================
+// INTERFACE RÉSULTATS MOBILE
+// WORD + PDF
+// =====================================================
+
 function afficherResultatsMobile(
     wordBlob,
     wordFileName,
@@ -568,94 +573,100 @@ function afficherResultatsMobile(
             "resultats-generes"
         );
 
-
-    if (
-        ancienne
-    ) {
-
+    if (ancienne) {
         ancienne.remove();
-
     }
 
 
-    const container =
-        document.createElement(
-            "div"
-        );
+    // =================================================
+    // CONTAINER
+    // =================================================
 
+    const container =
+        document.createElement("div");
 
     container.id =
         "resultats-generes";
 
-
     container.style.position =
         "fixed";
 
-
     container.style.left =
-        "20px";
-
+        "15px";
 
     container.style.right =
-        "20px";
-
+        "15px";
 
     container.style.bottom =
-        "20px";
-
+        "15px";
 
     container.style.zIndex =
         "9999999";
 
-
     container.style.background =
         "#ffffff";
-
 
     container.style.padding =
         "20px";
 
-
     container.style.borderRadius =
         "15px";
-
 
     container.style.boxShadow =
         "0 5px 30px rgba(0,0,0,0.25)";
 
-
     container.style.textAlign =
         "center";
-
 
     container.style.fontFamily =
         "Arial, sans-serif";
 
 
-    const titre =
-        document.createElement(
-            "div"
-        );
+    // =================================================
+    // TITRE
+    // =================================================
 
+    const titre =
+        document.createElement("div");
 
     titre.textContent =
         "Documents générés avec succès";
 
-
     titre.style.fontWeight =
         "bold";
-
 
     titre.style.fontSize =
         "18px";
 
-
     titre.style.marginBottom =
-        "15px";
-
+        "10px";
 
     container.appendChild(
         titre
+    );
+
+
+    // =================================================
+    // MESSAGE
+    // =================================================
+
+    const message =
+        document.createElement("div");
+
+    message.textContent =
+        "Choisissez le fichier à enregistrer.";
+
+    message.style.fontSize =
+        "14px";
+
+    message.style.marginBottom =
+        "15px";
+
+    message.style.color =
+        "#555";
+
+    container.appendChild(
+        message
     );
 
 
@@ -664,50 +675,37 @@ function afficherResultatsMobile(
     // =================================================
 
     const wordButton =
-        document.createElement(
-            "button"
-        );
-
+        document.createElement("button");
 
     wordButton.textContent =
-        "📄 Télécharger Word";
-
+        "📄 Enregistrer / partager Word";
 
     wordButton.style.display =
         "block";
 
-
     wordButton.style.width =
         "100%";
-
 
     wordButton.style.padding =
         "14px";
 
-
     wordButton.style.marginBottom =
         "10px";
-
 
     wordButton.style.border =
         "none";
 
-
     wordButton.style.borderRadius =
         "10px";
-
 
     wordButton.style.cursor =
         "pointer";
 
-
     wordButton.style.fontSize =
         "16px";
 
-
     wordButton.style.background =
         "#2563eb";
-
 
     wordButton.style.color =
         "#ffffff";
@@ -728,16 +726,16 @@ function afficherResultatsMobile(
                     );
 
 
-                // =================================================
-                // PARTAGE NATIF iOS / ANDROID
-                // =================================================
+                // =============================================
+                // PARTAGE NATIF
+                // =============================================
 
                 if (
                     navigator.share &&
                     navigator.canShare
                 ) {
 
-                    const fichier =
+                    const fichierWord =
                         new File(
                             [vraiWord],
                             wordFileName,
@@ -750,30 +748,29 @@ function afficherResultatsMobile(
 
                     if (
                         navigator.canShare({
-                            files: [fichier]
+                            files: [fichierWord]
                         })
                     ) {
 
                         await navigator.share({
 
-                            files: [fichier],
+                            files: [
+                                fichierWord
+                            ],
 
                             title:
-                                wordFileName
+                                "Question écrite Word"
 
                         });
 
-
                         return;
-
                     }
-
                 }
 
 
-                // =================================================
+                // =============================================
                 // FALLBACK
-                // =================================================
+                // =============================================
 
                 telechargerFichier(
                     vraiWord,
@@ -785,7 +782,7 @@ function afficherResultatsMobile(
             catch (error) {
 
                 console.error(
-                    "Erreur téléchargement Word mobile :",
+                    "Erreur Word :",
                     error
                 );
 
@@ -804,56 +801,215 @@ function afficherResultatsMobile(
     // =================================================
 
     const pdfButton =
-        document.createElement(
-            "button"
-        );
-
+        document.createElement("button");
 
     pdfButton.textContent =
-        "📕 Ouvrir PDF";
-
+        "📕 Enregistrer / partager PDF";
 
     pdfButton.style.display =
         "block";
 
-
     pdfButton.style.width =
         "100%";
-
 
     pdfButton.style.padding =
         "14px";
 
-
     pdfButton.style.marginBottom =
         "10px";
-
 
     pdfButton.style.border =
         "none";
 
-
     pdfButton.style.borderRadius =
         "10px";
-
 
     pdfButton.style.cursor =
         "pointer";
 
-
     pdfButton.style.fontSize =
         "16px";
 
-
     pdfButton.style.background =
         "#dc2626";
-
 
     pdfButton.style.color =
         "#ffffff";
 
 
     pdfButton.onclick =
+        async function () {
+
+            try {
+
+                const vraiPDF =
+                    new Blob(
+                        [pdfBlob],
+                        {
+                            type:
+                                "application/pdf"
+                        }
+                    );
+
+
+                // =============================================
+                // PARTAGE NATIF iOS / ANDROID
+                // =============================================
+
+                if (
+                    navigator.share &&
+                    navigator.canShare
+                ) {
+
+                    const fichierPDF =
+                        new File(
+                            [vraiPDF],
+                            "question-ecrite.pdf",
+                            {
+                                type:
+                                    "application/pdf"
+                            }
+                        );
+
+
+                    if (
+                        navigator.canShare({
+                            files: [fichierPDF]
+                        })
+                    ) {
+
+                        await navigator.share({
+
+                            files: [
+                                fichierPDF
+                            ],
+
+                            title:
+                                "Question écrite PDF"
+
+                        });
+
+                        return;
+                    }
+
+                }
+
+
+                // =============================================
+                // FALLBACK
+                // =============================================
+
+                const url =
+                    URL.createObjectURL(
+                        vraiPDF
+                    );
+
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+                link.href =
+                    url;
+
+                link.download =
+                    "question-ecrite.pdf";
+
+                link.target =
+                    "_blank";
+
+                link.rel =
+                    "noopener";
+
+
+                document.body.appendChild(
+                    link
+                );
+
+
+                link.click();
+
+
+                document.body.removeChild(
+                    link
+                );
+
+
+                setTimeout(
+                    function () {
+
+                        URL.revokeObjectURL(
+                            url
+                        );
+
+                    },
+                    120000
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Erreur PDF :",
+                    error
+                );
+
+            }
+
+        };
+
+
+    container.appendChild(
+        pdfButton
+    );
+
+
+    // =================================================
+    // BOUTON OUVRIR PDF
+    // =================================================
+    // Celui-ci reste disponible si l'utilisateur
+    // veut simplement consulter le PDF.
+
+    const ouvrirPdfButton =
+        document.createElement("button");
+
+    ouvrirPdfButton.textContent =
+        "👁️ Ouvrir PDF";
+
+    ouvrirPdfButton.style.display =
+        "block";
+
+    ouvrirPdfButton.style.width =
+        "100%";
+
+    ouvrirPdfButton.style.padding =
+        "12px";
+
+    ouvrirPdfButton.style.marginBottom =
+        "10px";
+
+    ouvrirPdfButton.style.border =
+        "1px solid #dc2626";
+
+    ouvrirPdfButton.style.borderRadius =
+        "10px";
+
+    ouvrirPdfButton.style.cursor =
+        "pointer";
+
+    ouvrirPdfButton.style.fontSize =
+        "15px";
+
+    ouvrirPdfButton.style.background =
+        "#ffffff";
+
+    ouvrirPdfButton.style.color =
+        "#dc2626";
+
+
+    ouvrirPdfButton.onclick =
         function () {
 
             const vraiPDF =
@@ -893,7 +1049,7 @@ function afficherResultatsMobile(
 
 
     container.appendChild(
-        pdfButton
+        ouvrirPdfButton
     );
 
 
@@ -902,30 +1058,25 @@ function afficherResultatsMobile(
     // =================================================
 
     const fermer =
-        document.createElement(
-            "button"
-        );
-
+        document.createElement("button");
 
     fermer.textContent =
         "Fermer";
 
-
     fermer.style.border =
         "none";
-
 
     fermer.style.background =
         "transparent";
 
-
     fermer.style.padding =
         "10px";
-
 
     fermer.style.cursor =
         "pointer";
 
+    fermer.style.fontSize =
+        "14px";
 
     fermer.onclick =
         function () {
@@ -939,6 +1090,10 @@ function afficherResultatsMobile(
         fermer
     );
 
+
+    // =================================================
+    // AFFICHER
+    // =================================================
 
     document.body.appendChild(
         container
