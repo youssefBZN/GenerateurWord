@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 2')
+alert('test app 3')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -800,170 +800,141 @@ function afficherResultatsMobile(
     // BOUTON PDF
     // =================================================
 
-    const pdfButton =
-        document.createElement("button");
+    // =================================================
+// BOUTON PDF
+// =================================================
 
-    pdfButton.textContent =
-        "📕 Enregistrer / partager PDF";
+const pdfButton =
+    document.createElement("button");
 
-    pdfButton.style.display =
-        "block";
+pdfButton.textContent =
+    "📕 Ouvrir / enregistrer PDF";
 
-    pdfButton.style.width =
-        "100%";
+pdfButton.style.display =
+    "block";
 
-    pdfButton.style.padding =
-        "14px";
+pdfButton.style.width =
+    "100%";
 
-    pdfButton.style.marginBottom =
-        "10px";
+pdfButton.style.padding =
+    "14px";
 
-    pdfButton.style.border =
-        "none";
+pdfButton.style.marginBottom =
+    "10px";
 
-    pdfButton.style.borderRadius =
-        "10px";
+pdfButton.style.border =
+    "none";
 
-    pdfButton.style.cursor =
-        "pointer";
+pdfButton.style.borderRadius =
+    "10px";
 
-    pdfButton.style.fontSize =
-        "16px";
+pdfButton.style.cursor =
+    "pointer";
 
-    pdfButton.style.background =
-        "#dc2626";
+pdfButton.style.fontSize =
+    "16px";
 
-    pdfButton.style.color =
-        "#ffffff";
+pdfButton.style.background =
+    "#dc2626";
 
-
-    pdfButton.onclick =
-        async function () {
-
-            try {
-
-                const vraiPDF =
-                    new Blob(
-                        [pdfBlob],
-                        {
-                            type:
-                                "application/pdf"
-                        }
-                    );
+pdfButton.style.color =
+    "#ffffff";
 
 
-                // =============================================
-                // PARTAGE NATIF iOS / ANDROID
-                // =============================================
+pdfButton.onclick =
+    function () {
 
-                if (
-                    navigator.share &&
-                    navigator.canShare
-                ) {
+        try {
 
-                    const fichierPDF =
-                        new File(
-                            [vraiPDF],
-                            "question-ecrite.pdf",
-                            {
-                                type:
-                                    "application/pdf"
-                            }
-                        );
+            // =================================================
+            // CRÉER UN VRAI BLOB PDF
+            // =================================================
 
-
-                    if (
-                        navigator.canShare({
-                            files: [fichierPDF]
-                        })
-                    ) {
-
-                        await navigator.share({
-
-                            files: [
-                                fichierPDF
-                            ],
-
-                            title:
-                                "Question écrite PDF"
-
-                        });
-
-                        return;
+            const vraiPDF =
+                new Blob(
+                    [pdfBlob],
+                    {
+                        type:
+                            "application/pdf"
                     }
-
-                }
-
-
-                // =============================================
-                // FALLBACK
-                // =============================================
-
-                const url =
-                    URL.createObjectURL(
-                        vraiPDF
-                    );
-
-
-                const link =
-                    document.createElement(
-                        "a"
-                    );
-
-                link.href =
-                    url;
-
-                link.download =
-                    "question-ecrite.pdf";
-
-                link.target =
-                    "_blank";
-
-                link.rel =
-                    "noopener";
-
-
-                document.body.appendChild(
-                    link
                 );
 
 
-                link.click();
+            // Vérification
+            if (
+                vraiPDF.size === 0
+            ) {
 
-
-                document.body.removeChild(
-                    link
-                );
-
-
-                setTimeout(
-                    function () {
-
-                        URL.revokeObjectURL(
-                            url
-                        );
-
-                    },
-                    120000
+                throw new Error(
+                    "Le PDF est vide."
                 );
 
             }
 
-            catch (error) {
 
-                console.error(
-                    "Erreur PDF :",
-                    error
+            console.log(
+                "PDF mobile :",
+                vraiPDF.size,
+                "octets"
+            );
+
+
+            // =================================================
+            // CRÉER URL PDF
+            // =================================================
+
+            const url =
+                URL.createObjectURL(
+                    vraiPDF
                 );
 
-            }
 
-        };
+            // =================================================
+            // OUVRIR LE VRAI PDF
+            // =================================================
+
+            window.location.href =
+                url;
 
 
-    container.appendChild(
-        pdfButton
-    );
+            // =================================================
+            // NE PAS SUPPRIMER IMMÉDIATEMENT
+            // =================================================
+
+            setTimeout(
+                function () {
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                },
+                300000
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Erreur ouverture PDF mobile :",
+                error
+            );
+
+            alert(
+                "Impossible d'ouvrir le PDF.\n\n" +
+                error.message
+            );
+
+        }
+
+    };
+
+
+container.appendChild(
+    pdfButton
+);
+  
 
 
     // =================================================
