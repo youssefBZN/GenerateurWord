@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 4')
+alert('test app 5')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -808,11 +808,186 @@ function afficherResultatsMobile(
 // BOUTON PDF
 // =================================================
 
+// const pdfButton =
+//     document.createElement("button");
+
+// pdfButton.textContent =
+//     "📕 Ouvrir le PDF";
+
+// pdfButton.style.display =
+//     "block";
+
+// pdfButton.style.width =
+//     "100%";
+
+// pdfButton.style.padding =
+//     "14px";
+
+// pdfButton.style.marginBottom =
+//     "10px";
+
+// pdfButton.style.border =
+//     "none";
+
+// pdfButton.style.borderRadius =
+//     "10px";
+
+// pdfButton.style.cursor =
+//     "pointer";
+
+// pdfButton.style.fontSize =
+//     "16px";
+
+// pdfButton.style.background =
+//     "#dc2626";
+
+// pdfButton.style.color =
+//     "#ffffff";
+
+
+// pdfButton.onclick =
+//     async function () {
+
+//         try {
+
+//             // =================================================
+//             // VÉRIFIER LE PDF
+//             // =================================================
+
+//             if (
+//                 !pdfBlob ||
+//                 pdfBlob.size === 0
+//             ) {
+
+//                 throw new Error(
+//                     "Le PDF est vide."
+//                 );
+
+//             }
+
+
+//             console.log(
+//                 "Taille PDF :",
+//                 pdfBlob.size,
+//                 "octets"
+//             );
+
+
+//             // =================================================
+//             // CRÉER UN VRAI FICHIER PDF
+//             // =================================================
+
+//             const fichierPDF =
+//                 new File(
+//                     [pdfBlob],
+//                     "question-ecrite.pdf",
+//                     {
+//                         type:
+//                             "application/pdf"
+//                     }
+//                 );
+
+
+//             console.log(
+//                 "Type PDF :",
+//                 fichierPDF.type
+//             );
+
+
+//             console.log(
+//                 "Nom PDF :",
+//                 fichierPDF.name
+//             );
+
+
+//             console.log(
+//                 "Taille fichier :",
+//                 fichierPDF.size
+//             );
+
+
+//             // =================================================
+//             // CRÉER URL DU FICHIER
+//             // =================================================
+
+//             const url =
+//                 URL.createObjectURL(
+//                     fichierPDF
+//                 );
+
+
+//             // =================================================
+//             // OUVRIR DANS UN NOUVEL ONGLET
+//             // =================================================
+
+//             const nouvelleFenetre =
+//                 window.open(
+//                     url,
+//                     "_blank"
+//                 );
+
+
+//             // =================================================
+//             // SI SAFARI BLOQUE window.open()
+//             // =================================================
+
+//             if (!nouvelleFenetre) {
+
+//                 window.location.assign(
+//                     url
+//                 );
+
+//             }
+
+
+//             // =================================================
+//             // NE PAS SUPPRIMER TROP RAPIDEMENT
+//             // =================================================
+
+//             setTimeout(
+//                 function () {
+
+//                     URL.revokeObjectURL(
+//                         url
+//                     );
+
+//                 },
+//                 300000
+//             );
+
+//         }
+
+//         catch (error) {
+
+//             console.error(
+//                 "Erreur ouverture PDF :",
+//                 error
+//             );
+
+
+//             alert(
+//                 "Impossible d'ouvrir le PDF.\n\n" +
+//                 error.message
+//             );
+
+//         }
+
+//     };
+
+
+// container.appendChild(
+//     pdfButton
+// );
+
+// =================================================
+// BOUTON PDF
+// =================================================
+
 const pdfButton =
     document.createElement("button");
 
 pdfButton.textContent =
-    "📕 Ouvrir le PDF";
+    "📕 Enregistrer / partager PDF";
 
 pdfButton.style.display =
     "block";
@@ -867,7 +1042,7 @@ pdfButton.onclick =
 
 
             console.log(
-                "Taille PDF :",
+                "PDF prêt :",
                 pdfBlob.size,
                 "octets"
             );
@@ -888,26 +1063,47 @@ pdfButton.onclick =
                 );
 
 
-            console.log(
-                "Type PDF :",
-                fichierPDF.type
-            );
+            // =================================================
+            // IPHONE / ANDROID
+            // PARTAGE NATIF
+            // =================================================
+
+            if (
+                navigator.share &&
+                navigator.canShare
+            ) {
+
+                const partagePossible =
+                    navigator.canShare({
+                        files: [fichierPDF]
+                    });
 
 
-            console.log(
-                "Nom PDF :",
-                fichierPDF.name
-            );
+                if (
+                    partagePossible
+                ) {
+
+                    await navigator.share({
+
+                        files: [
+                            fichierPDF
+                        ],
+
+                        title:
+                            "Question écrite PDF"
+
+                    });
 
 
-            console.log(
-                "Taille fichier :",
-                fichierPDF.size
-            );
+                    return;
+
+                }
+
+            }
 
 
             // =================================================
-            // CRÉER URL DU FICHIER
+            // FALLBACK MOBILE / NAVIGATEUR
             // =================================================
 
             const url =
@@ -916,33 +1112,36 @@ pdfButton.onclick =
                 );
 
 
-            // =================================================
-            // OUVRIR DANS UN NOUVEL ONGLET
-            // =================================================
-
-            const nouvelleFenetre =
-                window.open(
-                    url,
-                    "_blank"
+            const link =
+                document.createElement(
+                    "a"
                 );
 
 
-            // =================================================
-            // SI SAFARI BLOQUE window.open()
-            // =================================================
-
-            if (!nouvelleFenetre) {
-
-                window.location.assign(
-                    url
-                );
-
-            }
+            link.href =
+                url;
 
 
-            // =================================================
-            // NE PAS SUPPRIMER TROP RAPIDEMENT
-            // =================================================
+            link.download =
+                "question-ecrite.pdf";
+
+
+            link.style.display =
+                "none";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            document.body.removeChild(
+                link
+            );
+
 
             setTimeout(
                 function () {
@@ -952,7 +1151,7 @@ pdfButton.onclick =
                     );
 
                 },
-                300000
+                60000
             );
 
         }
@@ -960,13 +1159,29 @@ pdfButton.onclick =
         catch (error) {
 
             console.error(
-                "Erreur ouverture PDF :",
+                "Erreur PDF :",
                 error
             );
 
 
+            // L'utilisateur peut simplement avoir
+            // fermé la fenêtre de partage.
+            if (
+                error.name ===
+                "AbortError"
+            ) {
+
+                console.log(
+                    "Partage PDF annulé par l'utilisateur."
+                );
+
+                return;
+
+            }
+
+
             alert(
-                "Impossible d'ouvrir le PDF.\n\n" +
+                "Impossible d'enregistrer le PDF.\n\n" +
                 error.message
             );
 
@@ -978,7 +1193,8 @@ pdfButton.onclick =
 container.appendChild(
     pdfButton
 );
-  
+
+
 
 
     // =================================================
