@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 5')
+alert('test app 6')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -674,127 +674,128 @@ function afficherResultatsMobile(
     // BOUTON WORD
     // =================================================
 
-    const wordButton =
-        document.createElement("button");
+ // =====================================================
+// BOUTON WORD — ENREGISTREMENT / PARTAGE MOBILE
+// =====================================================
 
-    wordButton.textContent =
-        "📄 Enregistrer / partager Word";
+const wordButton = document.createElement("button");
 
-    wordButton.style.display =
-        "block";
+wordButton.textContent = "📄 Enregistrer / partager Word";
 
-    wordButton.style.width =
-        "100%";
+wordButton.style.cssText = `
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+`;
 
-    wordButton.style.padding =
-        "14px";
+wordButton.onclick = async function () {
 
-    wordButton.style.marginBottom =
-        "10px";
+    try {
 
-    wordButton.style.border =
-        "none";
+        if (!wordBlob || wordBlob.size === 0) {
+            throw new Error("Le fichier Word est vide.");
+        }
 
-    wordButton.style.borderRadius =
-        "10px";
+        const vraiWord = new Blob(
+            [wordBlob],
+            {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        );
 
-    wordButton.style.cursor =
-        "pointer";
-
-    wordButton.style.fontSize =
-        "16px";
-
-    wordButton.style.background =
-        "#2563eb";
-
-    wordButton.style.color =
-        "#ffffff";
+        const fichierWord = new File(
+            [vraiWord],
+            wordFileName,
+            {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        );
 
 
-    wordButton.onclick =
-        async function () {
+        // =================================================
+        // ANDROID / IPHONE : essayer le partage natif
+        // =================================================
+
+        if (navigator.share) {
 
             try {
 
-                const vraiWord =
-                    new Blob(
-                        [wordBlob],
-                        {
-                            type:
-                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        }
-                    );
+                await navigator.share({
+                    files: [fichierWord],
+                    title: "Question écrite Word"
+                });
 
+                // Le partage a réussi
+                return;
 
-                // =============================================
-                // PARTAGE NATIF
-                // =============================================
+            } catch (shareError) {
 
-                if (
-                    navigator.share &&
-                    navigator.canShare
-                ) {
+                // L'utilisateur a simplement fermé le menu
+                if (shareError.name === "AbortError") {
 
-                    const fichierWord =
-                        new File(
-                            [vraiWord],
-                            wordFileName,
-                            {
-                                type:
-                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            }
-                        );
+                    console.log("Partage Word annulé.");
 
-
-                    if (
-                        navigator.canShare({
-                            files: [fichierWord]
-                        })
-                    ) {
-
-                        await navigator.share({
-
-                            files: [
-                                fichierWord
-                            ],
-
-                            title:
-                                "Question écrite Word"
-
-                        });
-
-                        return;
-                    }
+                    return;
                 }
 
-
-                // =============================================
-                // FALLBACK
-                // =============================================
-
-                telechargerFichier(
-                    vraiWord,
-                    wordFileName
+                console.warn(
+                    "Le partage Word n'est pas disponible :",
+                    shareError
                 );
-
             }
-
-            catch (error) {
-
-                console.error(
-                    "Erreur Word :",
-                    error
-                );
-
-            }
-
-        };
+        }
 
 
-    container.appendChild(
-        wordButton
-    );
+        // =================================================
+        // FALLBACK : TÉLÉCHARGEMENT DIRECT
+        // =================================================
 
+        const url = URL.createObjectURL(vraiWord);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = wordFileName;
+
+        link.style.display = "none";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+
+        // Libérer l'URL après quelques secondes
+        setTimeout(function () {
+
+            URL.revokeObjectURL(url);
+
+        }, 60000);
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur lors de l'enregistrement Word :",
+            error
+        );
+
+        alert(
+            "Impossible d'enregistrer le fichier Word.\n\n" +
+            error.message
+        );
+    }
+};
+
+
+// Ajouter le bouton à l'interface
+container.appendChild(wordButton);
 
     // =================================================
     // BOUTON PDF
