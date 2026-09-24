@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 7')
+alert('test app 8')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -2078,6 +2078,10 @@ async function genererWord(
 // CONSTRUIRE LE CONTENU PDF — FORMAT IDENTIQUE A4
 // =====================================================
 
+// =====================================================
+// CONSTRUIRE LE PDF — PAGINATION AUTOMATIQUE A4
+// =====================================================
+
 function construirePDFContainer(
     subject,
     text,
@@ -2087,8 +2091,7 @@ function construirePDFContainer(
 ) {
 
     // =================================================
-    // DIMENSIONS A4
-    // 794 x 1123 px ≈ A4 à 96 DPI
+    // CONTENEUR PRINCIPAL
     // =================================================
 
     const pdfContainer =
@@ -2106,20 +2109,11 @@ function construirePDFContainer(
     pdfContainer.style.width =
         "794px";
 
-    pdfContainer.style.height =
-        "1123px";
-
     pdfContainer.style.background =
         "#ffffff";
 
     pdfContainer.style.color =
         "#000000";
-
-    pdfContainer.style.boxSizing =
-        "border-box";
-
-    pdfContainer.style.padding =
-        "18px 55px 55px 55px";
 
     pdfContainer.style.direction =
         "rtl";
@@ -2127,189 +2121,404 @@ function construirePDFContainer(
     pdfContainer.style.fontFamily =
         '"Traditional Arabic", "Arial", sans-serif';
 
-    pdfContainer.style.overflow =
-        "hidden";
-
-
-    // =================================================
-    // EN-TÊTE
-    // =================================================
-
-    const header =
-        document.createElement("div");
-
-    header.style.position =
-        "relative";
-
-    header.style.width =
-        "100%";
-
-    header.style.height =
-        "135px";
-
-    header.style.boxSizing =
+    pdfContainer.style.boxSizing =
         "border-box";
 
+    pdfContainer.style.padding =
+        "0";
+
+    pdfContainer.style.margin =
+        "0";
+
 
     // =================================================
-    // CRÉER IMAGE
+    // CONSTANTES PAGE A4
     // =================================================
 
-    function creerImage(
-        src,
-        position
+    const PAGE_WIDTH =
+        794;
+
+    const PAGE_HEIGHT =
+        1123;
+
+    const PAGE_PADDING_TOP =
+        18;
+
+    const PAGE_PADDING_LEFT =
+        55;
+
+    const PAGE_PADDING_RIGHT =
+        55;
+
+    const PAGE_PADDING_BOTTOM =
+        55;
+
+    const HEADER_HEIGHT =
+        135;
+
+    const FOOTER_HEIGHT =
+        40;
+
+    const ESPACE_APRES_HEADER =
+        22;
+
+
+    // =================================================
+    // CRÉER UNE PAGE
+    // =================================================
+
+    function creerPage(
+        afficherHeader
     ) {
 
-        const img =
-            document.createElement("img");
+        const page =
+            document.createElement("div");
 
-        img.src =
-            new URL(
-                src,
-                document.baseURI
-            ).href;
+        page.className =
+            "pdf-page";
 
-        img.style.position =
-            "absolute";
+        page.style.position =
+            "relative";
 
-        img.style.top =
-            "0";
+        page.style.width =
+            PAGE_WIDTH + "px";
 
-        img.style.objectFit =
-            "contain";
+        page.style.height =
+            PAGE_HEIGHT + "px";
 
-        img.style.display =
-            "block";
+        page.style.background =
+            "#ffffff";
 
-        img.style.margin =
-            "0";
+        page.style.boxSizing =
+            "border-box";
+
+        page.style.padding =
+            PAGE_PADDING_TOP + "px " +
+            PAGE_PADDING_RIGHT + "px " +
+            PAGE_PADDING_BOTTOM + "px " +
+            PAGE_PADDING_LEFT + "px";
+
+        page.style.overflow =
+            "hidden";
+
+        page.style.direction =
+            "rtl";
 
 
-        // ---------------------------------------------
-        // GAUCHE
-        // ---------------------------------------------
+        // =================================================
+        // ZONE CONTENU
+        // =================================================
+
+        const contenu =
+            document.createElement("div");
+
+        contenu.className =
+            "pdf-page-content";
+
+        contenu.style.width =
+            "100%";
+
+        contenu.style.boxSizing =
+            "border-box";
+
+        contenu.style.direction =
+            "rtl";
+
+        contenu.style.position =
+            "relative";
+
+        contenu.style.height =
+            (
+                PAGE_HEIGHT -
+                PAGE_PADDING_TOP -
+                PAGE_PADDING_BOTTOM -
+                FOOTER_HEIGHT
+            ) + "px";
+
+
+        // =================================================
+        // EN-TÊTE
+        // =================================================
 
         if (
-            position === "left"
+            afficherHeader
         ) {
 
-            img.style.left =
-                "0";
+            const header =
+                document.createElement("div");
 
-            img.style.width =
-                "125px";
+            header.style.position =
+                "relative";
 
-            img.style.height =
-                "120px";
+            header.style.width =
+                "100%";
+
+            header.style.height =
+                HEADER_HEIGHT + "px";
+
+            header.style.boxSizing =
+                "border-box";
+
+
+            function creerImage(
+                src,
+                position
+            ) {
+
+                const img =
+                    document.createElement("img");
+
+                img.src =
+                    new URL(
+                        src,
+                        document.baseURI
+                    ).href;
+
+                img.style.position =
+                    "absolute";
+
+                img.style.top =
+                    "0";
+
+                img.style.objectFit =
+                    "contain";
+
+                img.style.display =
+                    "block";
+
+                img.style.margin =
+                    "0";
+
+
+                if (
+                    position === "left"
+                ) {
+
+                    img.style.left =
+                        "0";
+
+                    img.style.width =
+                        "125px";
+
+                    img.style.height =
+                        "120px";
+
+                }
+
+                else if (
+                    position === "center"
+                ) {
+
+                    img.style.left =
+                        "50%";
+
+                    img.style.transform =
+                        "translateX(-50%)";
+
+                    img.style.width =
+                        "180px";
+
+                    img.style.height =
+                        "120px";
+
+                }
+
+                else {
+
+                    img.style.right =
+                        "0";
+
+                    img.style.width =
+                        "125px";
+
+                    img.style.height =
+                        "120px";
+
+                }
+
+                return img;
+
+            }
+
+
+            header.appendChild(
+                creerImage(
+                    "images/symboleamazigh.jpeg",
+                    "left"
+                )
+            );
+
+
+            header.appendChild(
+                creerImage(
+                    "images/royaumem.jpeg",
+                    "center"
+                )
+            );
+
+
+            header.appendChild(
+                creerImage(
+                    "images/symbole.jpeg",
+                    "right"
+                )
+            );
+
+
+            contenu.appendChild(
+                header
+            );
+
+
+            // Espace après l'en-tête
+
+            const espaceHeader =
+                document.createElement("div");
+
+            espaceHeader.style.height =
+                ESPACE_APRES_HEADER + "px";
+
+            contenu.appendChild(
+                espaceHeader
+            );
 
         }
 
 
-        // ---------------------------------------------
-        // CENTRE
-        // ---------------------------------------------
-
-        else if (
-            position === "center"
-        ) {
-
-            img.style.left =
-                "50%";
-
-            img.style.transform =
-                "translateX(-50%)";
-
-            img.style.width =
-                "180px";
-
-            img.style.height =
-                "120px";
-
-        }
+        page.appendChild(
+            contenu
+        );
 
 
-        // ---------------------------------------------
-        // DROITE
-        // ---------------------------------------------
+        // =================================================
+        // FOOTER
+        // =================================================
 
-        else {
+        const footer =
+            document.createElement("div");
 
-            img.style.right =
-                "0";
+        footer.style.position =
+            "absolute";
 
-            img.style.width =
-                "125px";
+        footer.style.left =
+            "35px";
 
-            img.style.height =
-                "120px";
+        footer.style.right =
+            "35px";
 
-        }
+        footer.style.bottom =
+            "12px";
+
+        footer.style.height =
+            FOOTER_HEIGHT + "px";
+
+        footer.style.boxSizing =
+            "border-box";
+
+        footer.style.direction =
+            "rtl";
+
+        footer.style.textAlign =
+            "center";
 
 
-        return img;
+        // Ligne
+
+        const ligne =
+            document.createElement("div");
+
+        ligne.style.width =
+            "100%";
+
+        ligne.style.height =
+            "4px";
+
+        ligne.style.background =
+            "#000000";
+
+        ligne.style.borderTop =
+            "2px solid #000000";
+
+        ligne.style.borderBottom =
+            "1px solid #000000";
+
+
+        footer.appendChild(
+            ligne
+        );
+
+
+        // Texte footer
+
+        const footerText =
+            document.createElement("div");
+
+        footerText.textContent =
+            "مجلس النواب - الفريق الحركي – الرباط ص.ب. 431 الهاتف 05 37 95 44 04 / 05 37 95 44 67 الفاكس 05 37 95 61 97";
+
+        footerText.style.fontFamily =
+            "Arial, sans-serif";
+
+        footerText.style.fontSize =
+            "10px";
+
+        footerText.style.fontWeight =
+            "bold";
+
+        footerText.style.direction =
+            "rtl";
+
+        footerText.style.textAlign =
+            "center";
+
+        footerText.style.whiteSpace =
+            "nowrap";
+
+        footerText.style.marginTop =
+            "2px";
+
+
+        footer.appendChild(
+            footerText
+        );
+
+
+        page.appendChild(
+            footer
+        );
+
+
+        pdfContainer.appendChild(
+            page
+        );
+
+
+        return {
+
+            page:
+                page,
+
+            contenu:
+                contenu
+
+        };
 
     }
 
 
     // =================================================
-    // LOGOS
+    // CRÉER PREMIÈRE PAGE
     // =================================================
 
-    header.appendChild(
-
-        creerImage(
-            "images/symboleamazigh.jpeg",
-            "left"
-        )
-
-    );
-
-
-    header.appendChild(
-
-        creerImage(
-            "images/royaumem.jpeg",
-            "center"
-        )
-
-    );
-
-
-    header.appendChild(
-
-        creerImage(
-            "images/symbole.jpeg",
-            "right"
-        )
-
-    );
-
-
-    pdfContainer.appendChild(
-        header
-    );
-
-
-    // =================================================
-    // PETIT ESPACE APRÈS L'EN-TÊTE
-    // =================================================
-
-    const espace =
-        document.createElement("div");
-
-    espace.style.height =
-        "22px";
-
-    pdfContainer.appendChild(
-        espace
-    );
+    let pageActuelle =
+        creerPage(true);
 
 
     // =================================================
     // FONCTION PARAGRAPHE
     // =================================================
 
-    function ajouterParagraphe(
+    function creerParagraphe(
         contenu,
         options = {}
     ) {
@@ -2367,11 +2576,87 @@ function construirePDFContainer(
         p.style.wordBreak =
             "normal";
 
-        pdfContainer.appendChild(
-            p
+        return p;
+
+    }
+
+
+    // =================================================
+    // AJOUTER UN BLOC AVEC PAGINATION
+    // =================================================
+
+    function ajouterBloc(
+        bloc,
+        garderAvecSuivant = false
+    ) {
+
+        const contenu =
+            pageActuelle.contenu;
+
+
+        contenu.appendChild(
+            bloc
         );
 
-        return p;
+
+        // Laisser le navigateur calculer
+        // la hauteur réelle
+
+        const hauteurDisponible =
+            contenu.clientHeight;
+
+
+        const hauteurUtilisee =
+            contenu.scrollHeight;
+
+
+        // =================================================
+        // SI LE BLOC DÉPASSE LA PAGE
+        // =================================================
+
+        if (
+            hauteurUtilisee >
+            hauteurDisponible
+        ) {
+
+            // Retirer le bloc
+
+            contenu.removeChild(
+                bloc
+            );
+
+
+            // Créer une nouvelle page
+
+            pageActuelle =
+                creerPage(false);
+
+
+            const nouveauContenu =
+                pageActuelle.contenu;
+
+
+            nouveauContenu.appendChild(
+                bloc
+            );
+
+
+            // =================================================
+            // SI LE BLOC EST PLUS GRAND QU'UNE PAGE
+            // =================================================
+
+            if (
+                nouveauContenu.scrollHeight >
+                nouveauContenu.clientHeight
+            ) {
+
+                console.warn(
+                    "Un paragraphe est plus grand qu'une page A4."
+                );
+
+            }
+
+        }
 
     }
 
@@ -2380,31 +2665,35 @@ function construirePDFContainer(
     // DESTINATAIRE
     // =================================================
 
-    ajouterParagraphe(
+    ajouterBloc(
 
-        "السيد رئيس مجلس النواب المحترم",
+        creerParagraphe(
 
-        {
+            "السيد رئيس مجلس النواب المحترم",
 
-            align:
-                "center",
+            {
 
-            size:
-                "31px",
+                align:
+                    "center",
 
-            bold:
-                true,
+                size:
+                    "31px",
 
-            lineHeight:
-                "1.2"
+                bold:
+                    true,
 
-        }
+                lineHeight:
+                    "1.2"
+
+            }
+
+        )
 
     );
 
 
     // =================================================
-    // PETIT ESPACE
+    // ESPACE
     // =================================================
 
     const espaceDestinataire =
@@ -2413,7 +2702,8 @@ function construirePDFContainer(
     espaceDestinataire.style.height =
         "10px";
 
-    pdfContainer.appendChild(
+
+    ajouterBloc(
         espaceDestinataire
     );
 
@@ -2422,32 +2712,36 @@ function construirePDFContainer(
     // SUJET
     // =================================================
 
-    ajouterParagraphe(
+    ajouterBloc(
 
-        "الموضوع: سؤال كتابي حول " +
-        subject,
+        creerParagraphe(
 
-        {
+            "الموضوع: سؤال كتابي حول " +
+            subject,
 
-            align:
-                "justify",
+            {
 
-            size:
-                "25px",
+                align:
+                    "justify",
 
-            bold:
-                true,
+                size:
+                    "25px",
 
-            lineHeight:
-                "1.25"
+                bold:
+                    true,
 
-        }
+                lineHeight:
+                    "1.25"
+
+            }
+
+        )
 
     );
 
 
     // =================================================
-    // PETIT ESPACE
+    // ESPACE
     // =================================================
 
     const espaceSujet =
@@ -2456,7 +2750,8 @@ function construirePDFContainer(
     espaceSujet.style.height =
         "8px";
 
-    pdfContainer.appendChild(
+
+    ajouterBloc(
         espaceSujet
     );
 
@@ -2465,25 +2760,29 @@ function construirePDFContainer(
     // SALUTATION
     // =================================================
 
-    ajouterParagraphe(
+    ajouterBloc(
 
-        "سلام تام بوجود مولانا الإمام،",
+        creerParagraphe(
 
-        {
+            "سلام تام بوجود مولانا الإمام،",
 
-            align:
-                "center",
+            {
 
-            size:
-                "31px",
+                align:
+                    "center",
 
-            bold:
-                true,
+                size:
+                    "31px",
 
-            lineHeight:
-                "1.2"
+                bold:
+                    true,
 
-        }
+                lineHeight:
+                    "1.2"
+
+            }
+
+        )
 
     );
 
@@ -2492,23 +2791,27 @@ function construirePDFContainer(
     // INTRODUCTION
     // =================================================
 
-    ajouterParagraphe(
+    ajouterBloc(
 
-        "طبقا لمقتضيات النظام الداخلي لمجلس النواب، يشرفني أن ألتمس من سيادتكم رفع السؤال الكتابي التالي إلى " +
-        fonctionMinistre,
+        creerParagraphe(
 
-        {
+            "طبقا لمقتضيات النظام الداخلي لمجلس النواب، يشرفني أن ألتمس من سيادتكم رفع السؤال الكتابي التالي إلى " +
+            fonctionMinistre,
 
-            align:
-                "justify",
+            {
 
-            size:
-                "24px",
+                align:
+                    "justify",
 
-            lineHeight:
-                "1.35"
+                size:
+                    "24px",
 
-        }
+                lineHeight:
+                    "1.35"
+
+            }
+
+        )
 
     );
 
@@ -2540,22 +2843,26 @@ function construirePDFContainer(
 
         function(line) {
 
-            ajouterParagraphe(
+            ajouterBloc(
 
-                line,
+                creerParagraphe(
 
-                {
+                    line,
 
-                    align:
-                        "justify",
+                    {
 
-                    size:
-                        "24px",
+                        align:
+                            "justify",
 
-                    lineHeight:
-                        "1.35"
+                        size:
+                            "24px",
 
-                }
+                        lineHeight:
+                            "1.35"
+
+                    }
+
+                )
 
             );
 
@@ -2565,7 +2872,7 @@ function construirePDFContainer(
 
 
     // =================================================
-    // ESPACE AVANT SIGNATURE
+    // ESPACE SIGNATURE
     // =================================================
 
     const espaceSignature =
@@ -2574,180 +2881,116 @@ function construirePDFContainer(
     espaceSignature.style.height =
         "10px";
 
-    pdfContainer.appendChild(
+
+    ajouterBloc(
         espaceSignature
     );
 
 
     // =================================================
-    // FORMULE DE POLITESSE
+    // SIGNATURE
     // =================================================
 
-    ajouterParagraphe(
-
-        "وتفضلوا بقبول فائق التقدير والاحترام",
-
-        {
-
-            align:
-                "center",
-
-            size:
-                "31px",
-
-            bold:
-                true,
-
-            lineHeight:
-                "1.2"
-
-        }
-
-    );
-
-
-    // =================================================
-    // NOM DU DÉPUTÉ
-    // =================================================
-
-    ajouterParagraphe(
-
-        nomDepute,
-
-        {
-
-            align:
-                "center",
-
-            size:
-                "31px",
-
-            bold:
-                true,
-
-            lineHeight:
-                "1.2"
-
-        }
-
-    );
-
-
-    // =================================================
-    // FONCTION DU DÉPUTÉ
-    // =================================================
-
-    ajouterParagraphe(
-
-        titreDepute,
-
-        {
-
-            align:
-                "center",
-
-            size:
-                "27px",
-
-            lineHeight:
-                "1.2"
-
-        }
-
-    );
-
-
-    // =================================================
-    // PIED DE PAGE
-    // =================================================
-
-    const footer =
+    const signature =
         document.createElement("div");
 
-    footer.style.position =
-        "absolute";
-
-    footer.style.left =
-        "35px";
-
-    footer.style.right =
-        "35px";
-
-    footer.style.bottom =
-        "12px";
-
-    footer.style.height =
-        "25px";
-
-    footer.style.boxSizing =
-        "border-box";
-
-    footer.style.direction =
-        "rtl";
-
-    footer.style.textAlign =
-        "center";
-
-
-    // Ligne supérieure
-    const ligne =
-        document.createElement("div");
-
-    ligne.style.width =
+    signature.style.width =
         "100%";
 
-    ligne.style.height =
-        "4px";
-
-    ligne.style.background =
-        "#000000";
-
-    ligne.style.borderTop =
-        "2px solid #000000";
-
-    ligne.style.borderBottom =
-        "1px solid #000000";
-
-    footer.appendChild(
-        ligne
-    );
-
-
-    // Texte du footer
-    const footerText =
-        document.createElement("div");
-
-    footerText.textContent =
-        "مجلس النواب - الفريق الحركي – الرباط ص.ب. 431 الهاتف 05 37 95 44 04 / 05 37 95 44 67 الفاكس 05 37 95 61 97";
-
-    footerText.style.fontFamily =
-        "Arial, sans-serif";
-
-    footerText.style.fontSize =
-        "10px";
-
-    footerText.style.fontWeight =
-        "bold";
-
-    footerText.style.direction =
+    signature.style.direction =
         "rtl";
 
-    footerText.style.textAlign =
+    signature.style.textAlign =
         "center";
 
-    footerText.style.whiteSpace =
-        "nowrap";
+    signature.style.boxSizing =
+        "border-box";
 
-    footerText.style.marginTop =
-        "2px";
 
-    footer.appendChild(
-        footerText
+    const formule =
+        creerParagraphe(
+
+            "وتفضلوا بقبول فائق التقدير والاحترام",
+
+            {
+
+                align:
+                    "center",
+
+                size:
+                    "31px",
+
+                bold:
+                    true,
+
+                lineHeight:
+                    "1.2"
+
+            }
+
+        );
+
+
+    const nom =
+        creerParagraphe(
+
+            nomDepute,
+
+            {
+
+                align:
+                    "center",
+
+                size:
+                    "31px",
+
+                bold:
+                    true,
+
+                lineHeight:
+                    "1.2"
+
+            }
+
+        );
+
+
+    const fonction =
+        creerParagraphe(
+
+            titreDepute,
+
+            {
+
+                align:
+                    "center",
+
+                size:
+                    "27px",
+
+                lineHeight:
+                    "1.2"
+
+            }
+
+        );
+
+
+    signature.appendChild(
+        formule
+    );
+
+    signature.appendChild(
+        nom
+    );
+
+    signature.appendChild(
+        fonction
     );
 
 
-    pdfContainer.appendChild(
-        footer
+    ajouterBloc(
+        signature
     );
 
 
@@ -2766,7 +3009,7 @@ function construirePDFContainer(
 
 
 // =====================================================
-// GÉNÉRATION PDF — A4 FIXE
+// GÉNÉRATION PDF — PLUSIEURS PAGES A4
 // =====================================================
 
 async function genererPDF(
@@ -2786,9 +3029,13 @@ async function genererPDF(
         construirePDFContainer(
 
             subject,
+
             text,
+
             fonctionMinistre,
+
             nomDepute,
+
             titreDepute
 
         );
@@ -2847,7 +3094,7 @@ async function genererPDF(
 
 
         // =================================================
-        // ATTENDRE LE RENDU DU DOM
+        // ATTENDRE LE RENDU
         // =================================================
 
         await new Promise(
@@ -2872,72 +3119,29 @@ async function genererPDF(
 
 
         // =================================================
-        // CANVAS A4
+        // RÉCUPÉRER LES PAGES
         // =================================================
 
-        const canvas =
-            await window.html2canvas(
-
-                pdfContainer,
-
-                {
-
-                    scale:
-                        2,
-
-                    backgroundColor:
-                        "#ffffff",
-
-                    useCORS:
-                        true,
-
-                    allowTaint:
-                        false,
-
-                    logging:
-                        false,
-
-                    width:
-                        794,
-
-                    height:
-                        1123,
-
-                    windowWidth:
-                        794,
-
-                    windowHeight:
-                        1123,
-
-                    scrollX:
-                        0,
-
-                    scrollY:
-                        0
-
-                }
-
+        const pages =
+            pdfContainer.querySelectorAll(
+                ".pdf-page"
             );
 
 
         if (
-            !canvas ||
-            canvas.width === 0 ||
-            canvas.height === 0
+            pages.length === 0
         ) {
 
             throw new Error(
-                "Impossible de créer le rendu PDF."
+                "Aucune page PDF n'a été créée."
             );
 
         }
 
 
         console.log(
-            "Canvas A4 :",
-            canvas.width,
-            "x",
-            canvas.height
+            "Nombre de pages PDF :",
+            pages.length
         );
 
 
@@ -2963,43 +3167,132 @@ async function genererPDF(
             });
 
 
-        const largeurPDF =
-            210;
-
-        const hauteurPDF =
-            297;
-
-
         // =================================================
-        // IMAGE UNIQUE — PAGE A4
+        // CAPTURER CHAQUE PAGE
         // =================================================
 
-        const imageData =
-            canvas.toDataURL(
-                "image/jpeg",
-                0.95
+        for (
+            let i = 0;
+            i < pages.length;
+            i++
+        ) {
+
+            const page =
+                pages[i];
+
+
+            console.log(
+                "Capture page :",
+                i + 1,
+                "/",
+                pages.length
             );
 
 
-        pdf.addImage(
+            const canvas =
+                await window.html2canvas(
 
-            imageData,
+                    page,
 
-            "JPEG",
+                    {
 
-            0,
+                        scale:
+                            2,
 
-            0,
+                        backgroundColor:
+                            "#ffffff",
 
-            largeurPDF,
+                        useCORS:
+                            true,
 
-            hauteurPDF,
+                        allowTaint:
+                            false,
 
-            undefined,
+                        logging:
+                            false,
 
-            "FAST"
+                        width:
+                            794,
 
-        );
+                        height:
+                            1123,
+
+                        windowWidth:
+                            794,
+
+                        windowHeight:
+                            1123,
+
+                        scrollX:
+                            0,
+
+                        scrollY:
+                            0
+
+                    }
+
+                );
+
+
+            if (
+                !canvas ||
+                canvas.width === 0 ||
+                canvas.height === 0
+            ) {
+
+                throw new Error(
+                    "Impossible de créer la page PDF " +
+                    (i + 1)
+                );
+
+            }
+
+
+            // =================================================
+            // NOUVELLE PAGE PDF
+            // =================================================
+
+            if (
+                i > 0
+            ) {
+
+                pdf.addPage();
+
+            }
+
+
+            // =================================================
+            // IMAGE
+            // =================================================
+
+            const imageData =
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.95
+                );
+
+
+            pdf.addImage(
+
+                imageData,
+
+                "JPEG",
+
+                0,
+
+                0,
+
+                210,
+
+                297,
+
+                undefined,
+
+                "FAST"
+
+            );
+
+        }
 
 
         // =================================================
@@ -3025,9 +3318,15 @@ async function genererPDF(
 
 
         console.log(
-            "PDF généré :",
+            "PDF final :",
             pdfBlob.size,
             "octets"
+        );
+
+
+        console.log(
+            "Nombre total de pages :",
+            pages.length
         );
 
 
