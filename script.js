@@ -10,7 +10,7 @@
 // CONFIGURATION
 // =====================================================
 
-alert('test app 8')
+alert('test app 9')
 
 const POLICE_ARABE = "Traditional Arabic";
 
@@ -2082,6 +2082,10 @@ async function genererWord(
 // CONSTRUIRE LE PDF — PAGINATION AUTOMATIQUE A4
 // =====================================================
 
+// =====================================================
+// CONSTRUIRE LE PDF — PAGINATION AUTOMATIQUE A4
+// =====================================================
+
 function construirePDFContainer(
     subject,
     text,
@@ -2096,6 +2100,9 @@ function construirePDFContainer(
 
     const pdfContainer =
         document.createElement("div");
+
+    pdfContainer.id =
+        "pdf-container-temporaire";
 
     pdfContainer.style.position =
         "absolute";
@@ -2115,24 +2122,24 @@ function construirePDFContainer(
     pdfContainer.style.color =
         "#000000";
 
-    pdfContainer.style.direction =
-        "rtl";
-
     pdfContainer.style.fontFamily =
         '"Traditional Arabic", "Arial", sans-serif';
 
     pdfContainer.style.boxSizing =
         "border-box";
 
-    pdfContainer.style.padding =
-        "0";
+    pdfContainer.style.direction =
+        "rtl";
 
     pdfContainer.style.margin =
         "0";
 
+    pdfContainer.style.padding =
+        "0";
+
 
     // =================================================
-    // CONSTANTES PAGE A4
+    // DIMENSIONS A4
     // =================================================
 
     const PAGE_WIDTH =
@@ -2204,6 +2211,9 @@ function construirePDFContainer(
         page.style.direction =
             "rtl";
 
+        page.style.flexShrink =
+            "0";
+
 
         // =================================================
         // ZONE CONTENU
@@ -2218,15 +2228,6 @@ function construirePDFContainer(
         contenu.style.width =
             "100%";
 
-        contenu.style.boxSizing =
-            "border-box";
-
-        contenu.style.direction =
-            "rtl";
-
-        contenu.style.position =
-            "relative";
-
         contenu.style.height =
             (
                 PAGE_HEIGHT -
@@ -2235,9 +2236,21 @@ function construirePDFContainer(
                 FOOTER_HEIGHT
             ) + "px";
 
+        contenu.style.boxSizing =
+            "border-box";
+
+        contenu.style.position =
+            "relative";
+
+        contenu.style.direction =
+            "rtl";
+
+        contenu.style.overflow =
+            "hidden";
+
 
         // =================================================
-        // EN-TÊTE
+        // EN-TÊTE — PREMIÈRE PAGE UNIQUEMENT
         // =================================================
 
         if (
@@ -2259,6 +2272,10 @@ function construirePDFContainer(
             header.style.boxSizing =
                 "border-box";
 
+
+            // =============================================
+            // IMAGE
+            // =============================================
 
             function creerImage(
                 src,
@@ -2370,13 +2387,19 @@ function construirePDFContainer(
             );
 
 
-            // Espace après l'en-tête
+            // =============================================
+            // ESPACE APRÈS EN-TÊTE
+            // =============================================
 
             const espaceHeader =
                 document.createElement("div");
 
             espaceHeader.style.height =
                 ESPACE_APRES_HEADER + "px";
+
+            espaceHeader.style.flexShrink =
+                "0";
+
 
             contenu.appendChild(
                 espaceHeader
@@ -2422,7 +2445,9 @@ function construirePDFContainer(
             "center";
 
 
-        // Ligne
+        // =================================================
+        // LIGNE FOOTER
+        // =================================================
 
         const ligne =
             document.createElement("div");
@@ -2448,7 +2473,9 @@ function construirePDFContainer(
         );
 
 
-        // Texte footer
+        // =================================================
+        // TEXTE FOOTER
+        // =================================================
 
         const footerText =
             document.createElement("div");
@@ -2507,7 +2534,17 @@ function construirePDFContainer(
 
 
     // =================================================
-    // CRÉER PREMIÈRE PAGE
+    // IMPORTANT :
+    // AJOUTER LE CONTENEUR AU DOM AVANT LES MESURES
+    // =================================================
+
+    document.body.appendChild(
+        pdfContainer
+    );
+
+
+    // =================================================
+    // PREMIÈRE PAGE
     // =================================================
 
     let pageActuelle =
@@ -2515,7 +2552,7 @@ function construirePDFContainer(
 
 
     // =================================================
-    // FONCTION PARAGRAPHE
+    // CRÉER UN PARAGRAPHE
     // =================================================
 
     function creerParagraphe(
@@ -2582,25 +2619,28 @@ function construirePDFContainer(
 
 
     // =================================================
-    // AJOUTER UN BLOC AVEC PAGINATION
+    // AJOUTER UN BLOC + PAGINATION
     // =================================================
 
     function ajouterBloc(
-        bloc,
-        garderAvecSuivant = false
+        bloc
     ) {
 
-        const contenu =
+        let contenu =
             pageActuelle.contenu;
 
 
+        // Ajouter le bloc
         contenu.appendChild(
             bloc
         );
 
 
-        // Laisser le navigateur calculer
-        // la hauteur réelle
+        // Forcer le navigateur à calculer
+        // les dimensions réelles
+
+        void contenu.offsetHeight;
+
 
         const hauteurDisponible =
             contenu.clientHeight;
@@ -2610,8 +2650,16 @@ function construirePDFContainer(
             contenu.scrollHeight;
 
 
+        console.log(
+            "Hauteur disponible :",
+            hauteurDisponible,
+            "Hauteur utilisée :",
+            hauteurUtilisee
+        );
+
+
         // =================================================
-        // SI LE BLOC DÉPASSE LA PAGE
+        // SI LE BLOC DÉBORDE
         // =================================================
 
         if (
@@ -2620,41 +2668,31 @@ function construirePDFContainer(
         ) {
 
             // Retirer le bloc
-
             contenu.removeChild(
                 bloc
             );
 
 
-            // Créer une nouvelle page
-
+            // Nouvelle page
             pageActuelle =
                 creerPage(false);
 
 
-            const nouveauContenu =
+            contenu =
                 pageActuelle.contenu;
 
 
-            nouveauContenu.appendChild(
+            contenu.appendChild(
                 bloc
             );
 
 
-            // =================================================
-            // SI LE BLOC EST PLUS GRAND QU'UNE PAGE
-            // =================================================
+            void contenu.offsetHeight;
 
-            if (
-                nouveauContenu.scrollHeight >
-                nouveauContenu.clientHeight
-            ) {
 
-                console.warn(
-                    "Un paragraphe est plus grand qu'une page A4."
-                );
-
-            }
+            console.log(
+                "➡️ Nouvelle page créée"
+            );
 
         }
 
@@ -2872,7 +2910,7 @@ function construirePDFContainer(
 
 
     // =================================================
-    // ESPACE SIGNATURE
+    // ESPACE AVANT SIGNATURE
     // =================================================
 
     const espaceSignature =
@@ -2995,13 +3033,8 @@ function construirePDFContainer(
 
 
     // =================================================
-    // AJOUT AU DOM
+    // RETOURNER LE CONTENEUR
     // =================================================
-
-    document.body.appendChild(
-        pdfContainer
-    );
-
 
     return pdfContainer;
 
@@ -3076,6 +3109,7 @@ async function genererPDF(
 
                             }
 
+
                             img.onload =
                                 resolve;
 
@@ -3094,15 +3128,13 @@ async function genererPDF(
 
 
         // =================================================
-        // ATTENDRE LE RENDU
+        // LAISSER LE NAVIGATEUR CALCULER
         // =================================================
 
         await new Promise(
-
             function(resolve) {
 
                 requestAnimationFrame(
-
                     function() {
 
                         requestAnimationFrame(
@@ -3110,11 +3142,9 @@ async function genererPDF(
                         );
 
                     }
-
                 );
 
             }
-
         );
 
 
@@ -3128,6 +3158,20 @@ async function genererPDF(
             );
 
 
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "NOMBRE DE PAGES :",
+            pages.length
+        );
+
+        console.log(
+            "================================="
+        );
+
+
         if (
             pages.length === 0
         ) {
@@ -3139,14 +3183,8 @@ async function genererPDF(
         }
 
 
-        console.log(
-            "Nombre de pages PDF :",
-            pages.length
-        );
-
-
         // =================================================
-        // CRÉER PDF A4
+        // CRÉER DOCUMENT PDF
         // =================================================
 
         const pdf =
@@ -3177,14 +3215,10 @@ async function genererPDF(
             i++
         ) {
 
-            const page =
-                pages[i];
-
-
             console.log(
-                "Capture page :",
+                "Capture page",
                 i + 1,
-                "/",
+                "sur",
                 pages.length
             );
 
@@ -3192,7 +3226,7 @@ async function genererPDF(
             const canvas =
                 await window.html2canvas(
 
-                    page,
+                    pages[i],
 
                     {
 
@@ -3241,7 +3275,7 @@ async function genererPDF(
             ) {
 
                 throw new Error(
-                    "Impossible de créer la page PDF " +
+                    "Erreur lors de la capture de la page " +
                     (i + 1)
                 );
 
@@ -3249,7 +3283,7 @@ async function genererPDF(
 
 
             // =================================================
-            // NOUVELLE PAGE PDF
+            // PAGE PDF
             // =================================================
 
             if (
@@ -3262,7 +3296,7 @@ async function genererPDF(
 
 
             // =================================================
-            // IMAGE
+            // CONVERTIR EN IMAGE
             // =================================================
 
             const imageData =
@@ -3271,6 +3305,10 @@ async function genererPDF(
                     0.95
                 );
 
+
+            // =================================================
+            // AJOUTER LA PAGE A4
+            // =================================================
 
             pdf.addImage(
 
@@ -3318,15 +3356,26 @@ async function genererPDF(
 
 
         console.log(
-            "PDF final :",
+            "================================="
+        );
+
+        console.log(
+            "PDF TERMINÉ"
+        );
+
+        console.log(
+            "Nombre de pages :",
+            pages.length
+        );
+
+        console.log(
+            "Taille :",
             pdfBlob.size,
             "octets"
         );
 
-
         console.log(
-            "Nombre total de pages :",
-            pages.length
+            "================================="
         );
 
 
@@ -3354,7 +3403,6 @@ async function genererPDF(
     }
 
 }
-
 // =====================================================
 // INITIALISATION APPLICATION
 // =====================================================
